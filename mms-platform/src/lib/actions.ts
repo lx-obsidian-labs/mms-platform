@@ -679,7 +679,7 @@ export async function chatWithAI(formData: FormData) {
   let reply = "";
 
   // Try NVIDIA NIM API if key is configured
-  const apiKey = process.env.NVIDIA_NIM_API_KEY;
+  const apiKey = process.env.NVIDIA_NIM_API_KEY || process.env.NVIDIA_API_KEY;
   const apiUrl = process.env.NVIDIA_NIM_API_URL ?? "https://integrate.api.nvidia.com/v1/chat/completions";
 
   if (apiKey) {

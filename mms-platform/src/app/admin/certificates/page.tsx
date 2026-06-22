@@ -11,20 +11,17 @@ export const metadata: Metadata = {
 export default async function AdminCertificatesPage() {
   const supabase = await createClient();
 
-  const [certificatesResult, statsResult] = await Promise.all([
+  const [certificatesResult] = await Promise.all([
     supabase
       .from("certificates")
       .select("*, enrollments!inner(courses(title), students!inner(profiles!inner(first_name, last_name)))")
       .order("created_at", { ascending: false })
       .limit(50),
-    supabase.from("certificates").select("*", { count: "exact", head: true }),
   ]);
 
   const { data: certificates } = certificatesResult;
-  const totalStats = await Promise.all([
-    supabase.from("certificates").select("*", { count: "exact", head: true }).eq("status", "issued"),
-    supabase.from("certificates").select("*", { count: "exact", head: true }).eq("status", "pending"),
-  ]);
+  const issuedStats = await supabase.from("certificates").select("*", { count: "exact", head: true });
+  const pendingStats = await supabase.from("certificates").select("*", { count: "exact", head: true }).eq("status", "pending");
 
   return (
     <div className="space-y-8">
@@ -37,21 +34,21 @@ export default async function AdminCertificatesPage() {
       <div className="grid gap-4 sm:grid-cols-4">
         <div className="rounded-xl border border-white/5 bg-surface p-4">
           <p className="text-xs text-muted-foreground">Total</p>
-          <p className="mt-1 font-heading text-2xl font-bold text-off-white">{totalStats[0].count ?? 0}</p>
+          <p className="mt-1 font-heading text-2xl font-bold text-off-white">{certificates?.length ?? 0}</p>
         </div>
         <div className="rounded-xl border border-white/5 bg-surface p-4">
           <div className="flex items-center gap-2">
             <CheckCircle className="size-4 text-green-400" />
             <p className="text-xs text-muted-foreground">Issued</p>
           </div>
-          <p className="mt-1 font-heading text-2xl font-bold text-green-400">{totalStats[1].count ?? 0}</p>
+          <p className="mt-1 font-heading text-2xl font-bold text-green-400">{issuedStats.count ?? 0}</p>
         </div>
         <div className="rounded-xl border border-white/5 bg-surface p-4">
           <div className="flex items-center gap-2">
             <Clock className="size-4 text-yellow-400" />
             <p className="text-xs text-muted-foreground">Pending</p>
           </div>
-          <p className="mt-1 font-heading text-2xl font-bold text-yellow-400">{totalStats[2].count ?? 0}</p>
+          <p className="mt-1 font-heading text-2xl font-bold text-yellow-400">{pendingStats.count ?? 0}</p>
         </div>
         <div className="rounded-xl border border-white/5 bg-surface p-4">
           <div className="flex items-center gap-2">

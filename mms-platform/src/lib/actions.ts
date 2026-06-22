@@ -7,9 +7,12 @@
 import { createClient } from "@/lib/supabase/server";
 import {
   sendApplicationConfirmation,
+  sendApplicationStatusUpdate,
   sendAdminNotification,
   sendContactFormNotification,
+  sendCourseAccessActivated,
   sendInstructorNotification,
+  sendWelcomeStudent,
 } from "@/lib/email";
 import { generateReferenceNumber, generateStudentNumber, generateTemporaryPassword } from "@/lib/utils";
 import { ALL_COURSES } from "@/lib/constants";
@@ -363,44 +366,144 @@ export async function updateApplicationStatus(
 ) {
   const supabase = await createClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { success: false, error: "Unauthorized" };
+  const { data: { user: admin } } = await supabase.auth.getUser();
+  if (!admin) return { success: false, error: "Unauthorized" };
 
-  const { data, error } = await supabase
+  // Fetch application with course
+  const { data: application, error: fetchError } = await supabase
+    .from("applications")
+    .select("*, courses!inner(id, title, slug)")
+    .eq("id", applicationId)
+    .single();
+
+  if (fetchError || !application) {
+    return { success: false, error: fetchError?.message ?? "Application not found" };
+  }
+
+  const course = application.courses as unknown as { id: string; title: string; slug: string };
+
+  // Update application status
+  const { error: updateError } = await supabase
     .from("applications")
     .update({
       status,
-      reviewed_by: user.id,
+      reviewed_by: admin.id,
       reviewed_at: new Date().toISOString(),
       notes: notes ?? null,
     })
-    .eq("id", applicationId)
-    .select()
+    .eq("id", applicationId);
+
+  if (updateError) {
+    console.error("[Admin] Update application error:", updateError);
+    return { success: false, error: updateError.message };
+  }
+
+  // If accepted: create student record + enrollment
+  if (status === "accepted" && application.user_id) {
+    const studentNumber = generateStudentNumber();
+
+    const { data: student } = await supabase.from("students").upsert({
+      user_id: application.user_id,
+      student_number: studentNumber,
+      id_number: application.id_number,
+      date_of_birth: application.date_of_birth,
+      gender: application.gender,
+      address: application.address,
+      province: application.province,
+      postal_code: application.postal_code,
+      emergency_contact_name: application.emergency_contact_name,
+      emergency_contact_phone: application.emergency_contact_phone,
+    }).select("id").maybeSingle();
+
+    const studentId = student?.id ?? application.user_id;
+
+    // Create enrollment
+    await supabase.from("enrollments").upsert({
+      student_id: studentId,
+      course_id: course.id,
+      status: "active",
+      enrolled_at: new Date().toISOString(),
+      progress_percentage: 0,
+    }).maybeSingle();
+
+    // Send course access + welcome emails
+    await sendCourseAccessActivated({
+      to: application.email,
+      firstName: application.first_name,
+      lastName: application.last_name,
+      courseName: course.title,
+      portalUrl: `${process.env.NEXT_PUBLIC_APP_URL ?? "https://mpumalangaminingsolutions.co.za"}/portal`,
+      email: application.email,
+      password: "Use your existing password",
+    });
+
+    await sendWelcomeStudent({
+      to: application.email,
+      firstName: application.first_name,
+      lastName: application.last_name,
+      courseName: course.title,
+      startDate: new Date().toLocaleDateString("en-ZA", { year: "numeric", month: "long", day: "numeric" }),
+    });
+  }
+
+  // Send status update email
+  if (status === "accepted" || status === "rejected" || status === "under_review") {
+    await sendApplicationStatusUpdate({
+      to: application.email,
+      firstName: application.first_name,
+      lastName: application.last_name,
+      courseName: course?.title ?? "your selected course",
+      referenceNumber: application.reference_number,
+      status: status as "accepted" | "rejected" | "under_review",
+      notes,
+    });
+  }
+
+  return { success: true };
+}
+
+// ============================================
+// SUPPORT TICKET ACTIONS
+// ============================================
+
+export async function createSupportTicket(formData: FormData) {
+  const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Unauthorized" };
+
+  const subject = formData.get("subject") as string;
+  const message = formData.get("message") as string;
+  const priority = (formData.get("priority") as string) || "normal";
+
+  if (!subject || !message) {
+    return { success: false, error: "Subject and message are required." };
+  }
+
+  const { data: student } = await supabase
+    .from("students")
+    .select("id")
+    .eq("user_id", user.id)
     .single();
 
+  if (!student) {
+    return { success: false, error: "Student profile not found." };
+  }
+
+  const { error } = await supabase.from("support_tickets").insert({
+    student_id: student.id,
+    subject,
+    message,
+    priority,
+    status: "open",
+  });
+
   if (error) {
-    console.error("[Admin] Update application error:", error);
-    return { success: false, error: error.message };
+    console.error("[Ticket] Create error:", error);
+    return { success: false, error: "Failed to create ticket." };
   }
 
-  // Send email notification to applicant
-  if (data && (status === "accepted" || status === "rejected" || status === "under_review")) {
-    const course = ALL_COURSES.find((c) => c.slug === (data as Record<string, unknown>).course_slug);
-
-    await import("@/lib/email").then(({ sendApplicationStatusUpdate }) =>
-      sendApplicationStatusUpdate({
-        to: data.email,
-        firstName: data.first_name,
-        lastName: data.last_name,
-        courseName: course?.title ?? "your selected course",
-        referenceNumber: data.reference_number,
-        status,
-        notes,
-      })
-    );
-  }
-
-  return { success: true, data };
+  return { success: true };
 }
 
 export async function getDashboardStats() {

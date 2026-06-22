@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Loader2, Search, Eye, CheckCircle2, XCircle, Clock } from "lucide-react";
 import { updateApplicationStatus } from "@/lib/actions";
 import { cn } from "@/lib/utils";
@@ -27,11 +28,11 @@ interface Application {
 }
 
 export function ApplicationsTable({ applications }: { applications: Application[] }) {
+  const router = useRouter();
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
   const [isPending, startTransition] = useTransition();
-  const [refreshKey, setRefreshKey] = useState(0);
 
   const statuses = ["all", "submitted", "under_review", "accepted", "rejected", "waitlisted"];
 
@@ -48,7 +49,7 @@ export function ApplicationsTable({ applications }: { applications: Application[
   function handleStatusUpdate(appId: string, status: "under_review" | "accepted" | "rejected" | "waitlisted") {
     startTransition(() => {
       updateApplicationStatus(appId, status).then(() => {
-        setRefreshKey((k) => k + 1);
+        router.refresh();
         if (selectedApp?.id === appId) {
           setSelectedApp({ ...selectedApp, status });
         }

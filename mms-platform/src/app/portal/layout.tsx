@@ -1,44 +1,59 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
-  FileText,
-  Users,
   BookOpen,
-  CreditCard,
-  Settings,
+  FileText,
+  Award,
+  Bell,
+  LifeBuoy,
+  User,
   LogOut,
-  Shield,
   ChevronLeft,
   Menu,
+  GraduationCap,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/client";
 
 const NAV_ITEMS = [
-  { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { label: "Applications", href: "/admin/applications", icon: FileText },
-  { label: "Students", href: "/admin/students", icon: Users },
-  { label: "Courses", href: "/admin/courses", icon: BookOpen },
-  { label: "Learning Content", href: "/admin/content", icon: BookOpen },
-  { label: "Certificates", href: "/admin/certificates", icon: Shield },
-  { label: "Payments", href: "/admin/payments", icon: CreditCard },
-  { label: "Instructors", href: "/admin/instructors", icon: Users },
-  { label: "Support Tickets", href: "/admin/support", icon: FileText },
-  { label: "Reports", href: "/admin/reports", icon: FileText },
-  { label: "Settings", href: "/admin/settings", icon: Settings },
+  { label: "Dashboard", href: "/portal/dashboard", icon: LayoutDashboard },
+  { label: "My Courses", href: "/portal/courses", icon: BookOpen },
+  { label: "Certificates", href: "/portal/certificates", icon: Award },
+  { label: "Documents", href: "/portal/documents", icon: FileText },
+  { label: "Notifications", href: "/portal/notifications", icon: Bell },
+  { label: "Support", href: "/portal/support", icon: LifeBuoy },
+  { label: "Profile", href: "/portal/profile", icon: User },
 ];
 
-export function AdminSidebar() {
+export default function PortalLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [userName, setUserName] = useState("");
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => {
+      if (data?.user?.user_metadata) {
+        const meta = data.user.user_metadata;
+        setUserName(`${meta.first_name ?? ""} ${meta.last_name ?? ""}`.trim());
+      }
+    });
+  }, []);
+
+  const handleSignOut = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/");
+  };
 
   return (
-    <>
-      {/* Mobile Toggle */}
+    <div className="min-h-screen bg-background">
       <button
         onClick={() => setMobileOpen(!mobileOpen)}
         className="fixed left-4 top-4 z-50 flex size-10 items-center justify-center rounded-lg border border-white/10 bg-surface lg:hidden"
@@ -46,7 +61,6 @@ export function AdminSidebar() {
         <Menu className="size-5 text-off-white" />
       </button>
 
-      {/* Overlay */}
       {mobileOpen && (
         <div
           className="fixed inset-0 z-30 bg-black/60 lg:hidden"
@@ -54,7 +68,6 @@ export function AdminSidebar() {
         />
       )}
 
-      {/* Sidebar */}
       <aside
         className={cn(
           "fixed inset-y-0 left-0 z-40 flex flex-col border-r border-white/5 bg-[#0d0d0d] transition-all duration-300",
@@ -62,16 +75,15 @@ export function AdminSidebar() {
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
-        {/* Header */}
         <div className={cn("flex h-16 items-center border-b border-white/5 px-4", collapsed ? "justify-center" : "justify-between")}>
-          <Link href="/admin" className="flex items-center gap-2.5">
+          <Link href="/portal/dashboard" className="flex items-center gap-2.5">
             <div className="flex size-8 items-center justify-center rounded-lg bg-gold">
-              <Shield className="size-4 text-black" />
+              <GraduationCap className="size-4 text-black" />
             </div>
             {!collapsed && (
               <div>
-                <p className="text-sm font-bold text-off-white">MMS Admin</p>
-                <p className="text-[10px] text-muted-foreground">Management Portal</p>
+                <p className="text-sm font-bold text-off-white">Student Portal</p>
+                <p className="text-[10px] text-muted-foreground">Learning Hub</p>
               </div>
             )}
           </Link>
@@ -83,11 +95,10 @@ export function AdminSidebar() {
           </button>
         </div>
 
-        {/* Nav */}
         <nav className="flex-1 overflow-y-auto px-3 py-4">
           <ul className="space-y-1">
             {NAV_ITEMS.map((item) => {
-              const isActive = pathname === item.href;
+              const isActive = pathname.startsWith(item.href);
               const Icon = item.icon;
               return (
                 <li key={item.href}>
@@ -112,18 +123,20 @@ export function AdminSidebar() {
           </ul>
         </nav>
 
-        {/* Footer */}
         <div className="border-t border-white/5 p-3">
-          <Link
-            href="/login"
+          {!collapsed && userName && (
+            <p className="mb-2 truncate px-3 text-xs text-muted-foreground">{userName}</p>
+          )}
+          <button
+            onClick={handleSignOut}
             className={cn(
-              "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-white/5 hover:text-red-400",
+              "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-white/5 hover:text-red-400",
               collapsed && "justify-center px-2"
             )}
           >
             <LogOut className="size-[18px] shrink-0" />
             {!collapsed && <span>Sign Out</span>}
-          </Link>
+          </button>
           {!collapsed && (
             <Link
               href="/"
@@ -134,6 +147,12 @@ export function AdminSidebar() {
           )}
         </div>
       </aside>
-    </>
+
+      <main className="lg:pl-64">
+        <div className="px-4 py-6 pt-16 lg:px-8 lg:pt-6">
+          {children}
+        </div>
+      </main>
+    </div>
   );
 }

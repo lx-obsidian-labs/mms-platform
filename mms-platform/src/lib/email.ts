@@ -240,6 +240,276 @@ export async function sendContactFormNotification(params: {
 // CORE SEND FUNCTION
 // ============================================
 
+// ============================================
+// PAYMENT CONFIRMATION EMAIL
+// ============================================
+
+export async function sendPaymentConfirmation(params: {
+  to: string;
+  firstName: string;
+  lastName: string;
+  courseName: string;
+  referenceNumber: string;
+  amount: number;
+}) {
+  const { to, firstName, lastName, courseName, referenceNumber, amount } = params;
+
+  const content = `
+    <h2 style="margin:0 0 16px;font-size:22px;color:#F7F7F7;">Payment Confirmed</h2>
+    <p style="margin:0 0 16px;color:#ccc;line-height:1.6;">Dear ${firstName} ${lastName},</p>
+    <p style="margin:0 0 16px;color:#ccc;line-height:1.6;">
+      Your payment of <strong style="color:#D9A400;">R${amount.toLocaleString()}</strong> for <strong style="color:#D9A400;">${courseName}</strong> has been successfully verified.
+    </p>
+    <div style="background-color:#222;border-left:4px solid #22c55e;padding:16px;margin:24px 0;border-radius:4px;">
+      <p style="margin:0 0 8px;color:#888;font-size:12px;text-transform:uppercase;">Reference Number</p>
+      <p style="margin:0;font-size:20px;font-weight:700;color:#22c55e;letter-spacing:1px;">${referenceNumber}</p>
+    </div>
+    <h3 style="margin:24px 0 12px;font-size:16px;color:#F7F7F7;">What Happens Next?</h3>
+    <ol style="color:#ccc;line-height:1.8;padding-left:20px;">
+      <li>Your enrollment is now being processed</li>
+      <li>You will receive course access details within 24 hours</li>
+      <li>Check your student portal for updates</li>
+    </ol>
+  `;
+
+  return sendEmail({
+    to,
+    subject: `Payment Confirmed - ${referenceNumber} | Mpumalanga Mining Solutions`,
+    html: emailLayout(content, "Payment Confirmation"),
+  });
+}
+
+// ============================================
+// COURSE ACCESS ACTIVATED EMAIL
+// ============================================
+
+export async function sendCourseAccessActivated(params: {
+  to: string;
+  firstName: string;
+  lastName: string;
+  courseName: string;
+  portalUrl: string;
+  email: string;
+  password: string;
+}) {
+  const { to, firstName, lastName, courseName, portalUrl, email, password } = params;
+
+  const content = `
+    <h2 style="margin:0 0 16px;font-size:22px;color:#F7F7F7;">Course Access Granted</h2>
+    <p style="margin:0 0 16px;color:#ccc;line-height:1.6;">Dear ${firstName} ${lastName},</p>
+    <p style="margin:0 0 16px;color:#ccc;line-height:1.6;">
+      Your access to <strong style="color:#D9A400;">${courseName}</strong> has been activated.
+    </p>
+    <div style="background-color:#222;border-left:4px solid #D9A400;padding:16px;margin:24px 0;border-radius:4px;">
+      <p style="margin:0 0 8px;color:#888;font-size:12px;text-transform:uppercase;">Portal Credentials</p>
+      <p style="margin:0 0 4px;color:#ccc;font-size:14px;">Email: <strong style="color:#D9A400;">${email}</strong></p>
+      <p style="margin:0;color:#ccc;font-size:14px;">Password: <strong style="color:#D9A400;">${password}</strong></p>
+    </div>
+    <p style="margin:16px 0;color:#ccc;line-height:1.6;">
+      Login at: <a href="${portalUrl}" style="color:#D9A400;">${portalUrl}</a>
+    </p>
+    <h3 style="margin:24px 0 12px;font-size:16px;color:#F7F7F7;">You Can Now Access:</h3>
+    <ul style="color:#ccc;line-height:1.8;padding-left:20px;">
+      <li>Learning Materials</li>
+      <li>Video Lessons</li>
+      <li>Study Guides & Downloads</li>
+      <li>Assessments</li>
+      <li>Progress Tracking</li>
+      <li>Student Services</li>
+    </ul>
+    <p style="margin:16px 0 0;color:#ccc;line-height:1.6;">We wish you success in your training journey.</p>
+  `;
+
+  return sendEmail({
+    to,
+    subject: `Course Access Activated - ${courseName} | Mpumalanga Mining Solutions`,
+    html: emailLayout(content, "Course Access"),
+  });
+}
+
+// ============================================
+// WELCOME STUDENT EMAIL
+// ============================================
+
+export async function sendWelcomeStudent(params: {
+  to: string;
+  firstName: string;
+  lastName: string;
+  courseName: string;
+  startDate: string;
+}) {
+  const { to, firstName, lastName, courseName, startDate } = params;
+
+  const content = `
+    <h2 style="margin:0 0 16px;font-size:22px;color:#F7F7F7;">Welcome to MMS</h2>
+    <p style="margin:0 0 16px;color:#ccc;line-height:1.6;">Dear ${firstName} ${lastName},</p>
+    <p style="margin:0 0 16px;color:#ccc;line-height:1.6;">
+      Welcome to <strong style="color:#D9A400;">Mpumalanga Mining Solutions</strong>. You are now officially enrolled in <strong style="color:#D9A400;">${courseName}</strong>.
+    </p>
+    <div style="background-color:#222;border-left:4px solid #D9A400;padding:16px;margin:24px 0;border-radius:4px;">
+      <p style="margin:0 0 4px;color:#888;font-size:12px;text-transform:uppercase;">Course Start Date</p>
+      <p style="margin:0;font-size:18px;font-weight:700;color:#D9A400;">${startDate}</p>
+    </div>
+    <p style="margin:16px 0;color:#ccc;line-height:1.6;">
+      We are committed to supporting your success throughout your training journey. Your student portal contains everything you need to get started.
+    </p>
+    <p style="margin:16px 0 0;color:#ccc;line-height:1.6;">
+      Building The Future Of Mining.
+    </p>
+  `;
+
+  return sendEmail({
+    to,
+    subject: `Welcome To Mpumalanga Mining Solutions | ${courseName}`,
+    html: emailLayout(content, "Welcome"),
+  });
+}
+
+// ============================================
+// CERTIFICATE ISSUED EMAIL
+// ============================================
+
+export async function sendCertificateIssued(params: {
+  to: string;
+  firstName: string;
+  lastName: string;
+  courseName: string;
+  certificateNumber: string;
+}) {
+  const { to, firstName, lastName, courseName, certificateNumber } = params;
+
+  const content = `
+    <h2 style="margin:0 0 16px;font-size:22px;color:#F7F7F7;">Certificate Available</h2>
+    <p style="margin:0 0 16px;color:#ccc;line-height:1.6;">Dear ${firstName} ${lastName},</p>
+    <p style="margin:0 0 16px;color:#ccc;line-height:1.6;">
+      Congratulations! Your certificate for <strong style="color:#D9A400;">${courseName}</strong> has been issued and is now available.
+    </p>
+    <div style="background-color:#222;border-left:4px solid #22c55e;padding:16px;margin:24px 0;border-radius:4px;">
+      <p style="margin:0 0 8px;color:#888;font-size:12px;text-transform:uppercase;">Certificate Number</p>
+      <p style="margin:0;font-size:20px;font-weight:700;color:#22c55e;letter-spacing:1px;">${certificateNumber}</p>
+    </div>
+    <p style="margin:16px 0;color:#ccc;line-height:1.6;">
+      You may download your certificate from the student portal. Well done on completing your training.
+    </p>
+  `;
+
+  return sendEmail({
+    to,
+    subject: `Certificate Available - ${courseName} | Mpumalanga Mining Solutions`,
+    html: emailLayout(content, "Certificate"),
+  });
+}
+
+// ============================================
+// DOCUMENT REQUEST EMAIL
+// ============================================
+
+export async function sendDocumentRequest(params: {
+  to: string;
+  firstName: string;
+  lastName: string;
+  documentList: string[];
+}) {
+  const { to, firstName, lastName, documentList } = params;
+
+  const docItems = documentList.map((d) => `<li>${d}</li>`).join("");
+
+  const content = `
+    <h2 style="margin:0 0 16px;font-size:22px;color:#F7F7F7;">Additional Documents Required</h2>
+    <p style="margin:0 0 16px;color:#ccc;line-height:1.6;">Dear ${firstName} ${lastName},</p>
+    <p style="margin:0 0 16px;color:#ccc;line-height:1.6;">
+      Your application requires additional documentation before it can be processed.
+    </p>
+    <div style="background-color:#222;border-left:4px solid #D9A400;padding:16px;margin:24px 0;border-radius:4px;">
+      <p style="margin:0 0 8px;color:#888;font-size:12px;text-transform:uppercase;">Required Documents</p>
+      <ul style="color:#ccc;line-height:1.8;padding-left:20px;margin:0;">${docItems}</ul>
+    </div>
+    <p style="margin:16px 0;color:#ccc;line-height:1.6;">
+      Please upload the documents through your student portal. If you need assistance, please contact support.
+    </p>
+  `;
+
+  return sendEmail({
+    to,
+    subject: "Additional Documents Required | Mpumalanga Mining Solutions",
+    html: emailLayout(content, "Document Request"),
+  });
+}
+
+// ============================================
+// PASSWORD RESET EMAIL
+// ============================================
+
+export async function sendPasswordReset(params: {
+  to: string;
+  firstName: string;
+  resetLink: string;
+}) {
+  const { to, firstName, resetLink } = params;
+
+  const content = `
+    <h2 style="margin:0 0 16px;font-size:22px;color:#F7F7F7;">Password Reset Request</h2>
+    <p style="margin:0 0 16px;color:#ccc;line-height:1.6;">Dear ${firstName},</p>
+    <p style="margin:0 0 16px;color:#ccc;line-height:1.6;">
+      A request has been received to reset your password.
+    </p>
+    <p style="margin:16px 0;text-align:center;">
+      <a href="${resetLink}" style="display:inline-block;background-color:#D9A400;color:#111;padding:14px 32px;border-radius:4px;text-decoration:none;font-weight:700;font-size:16px;">Reset Password</a>
+    </p>
+    <p style="margin:16px 0;color:#ccc;line-height:1.6;">
+      If you did not make this request, please ignore this email. Your password will remain unchanged.
+    </p>
+  `;
+
+  return sendEmail({
+    to,
+    subject: "Password Reset Request | Mpumalanga Mining Solutions",
+    html: emailLayout(content, "Password Reset"),
+  });
+}
+
+// ============================================
+// INSTRUCTOR NOTIFICATION (New Application)
+// ============================================
+
+export async function sendInstructorNotification(params: {
+  to: string;
+  studentName: string;
+  courseName: string;
+  phone: string;
+  email: string;
+  referenceNumber: string;
+  whatsapp: string;
+}) {
+  const { to, studentName, courseName, phone, email, referenceNumber, whatsapp } = params;
+
+  const content = `
+    <h2 style="margin:0 0 16px;font-size:22px;color:#F7F7F7;">New Student Registration</h2>
+    <p style="margin:0 0 16px;color:#ccc;line-height:1.6;">A new student has submitted an application.</p>
+    <table width="100%" cellpadding="8" cellspacing="0" style="color:#ccc;">
+      <tr><td style="color:#888;width:120px;">Name:</td><td>${studentName}</td></tr>
+      <tr><td style="color:#888;">Course:</td><td>${courseName}</td></tr>
+      <tr><td style="color:#888;">Phone:</td><td>${phone}</td></tr>
+      <tr><td style="color:#888;">WhatsApp:</td><td>${whatsapp}</td></tr>
+      <tr><td style="color:#888;">Email:</td><td>${email}</td></tr>
+      <tr><td style="color:#888;">Reference:</td><td>${referenceNumber}</td></tr>
+    </table>
+    <p style="margin:24px 0 0;background-color:#222;border-left:4px solid #D9A400;padding:16px;border-radius:4px;color:#ccc;">
+      <strong>Action Required:</strong> Contact student within 24 hours.
+    </p>
+  `;
+
+  return sendEmail({
+    to,
+    subject: `New Student Registration - ${studentName} | MMS`,
+    html: emailLayout(content, "New Student"),
+  });
+}
+
+// ============================================
+// CORE SEND FUNCTION
+// ============================================
+
 async function sendEmail(params: { to: string; subject: string; html: string }) {
   try {
     const { data, error } = await resend.emails.send({

@@ -25,3 +25,36 @@ export function generateReferenceNumber(prefix = "MMS"): string {
   const random = Math.random().toString(36).substring(2, 8).toUpperCase();
   return `${prefix}-${year}-${random}`;
 }
+
+export function generateStudentNumber(): string {
+  const year = new Date().getFullYear();
+  const random = String(Math.floor(Math.random() * 99999)).padStart(5, "0");
+  return `MMS${year}${random}`;
+}
+
+export function generateTemporaryPassword(): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let pw = "MMS#";
+  for (let i = 0; i < 6; i++) {
+    pw += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return pw;
+}
+
+export function generateCertificateNumber(): string {
+  const year = new Date().getFullYear();
+  const random = String(Math.floor(Math.random() * 999999)).padStart(6, "0");
+  return `MMS-CERT-${year}-${random}`;
+}
+
+export function generateInvoiceNumber(): string {
+  const year = new Date().getFullYear();
+  const random = String(Math.floor(Math.random() * 9999)).padStart(4, "0");
+  return `INV-${year}-${random}`;
+}
+
+export function generateReceiptNumber(): string {
+  const year = new Date().getFullYear();
+  const random = String(Math.floor(Math.random() * 9999)).padStart(4, "0");
+  return `RCT-${year}-${random}`;
+}

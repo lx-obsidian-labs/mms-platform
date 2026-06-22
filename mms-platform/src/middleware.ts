@@ -38,8 +38,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Protect portal routes
-  if (request.nextUrl.pathname.startsWith("/portal/dashboard") && !user) {
+  // Protect portal routes (all /portal/* except the landing)
+  if (request.nextUrl.pathname.startsWith("/portal/") && request.nextUrl.pathname !== "/portal" && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("redirect", request.nextUrl.pathname);

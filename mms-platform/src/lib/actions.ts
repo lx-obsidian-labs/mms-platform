@@ -9,50 +9,110 @@ import {
   sendApplicationConfirmation,
   sendAdminNotification,
   sendContactFormNotification,
+  sendInstructorNotification,
 } from "@/lib/email";
-import { generateReferenceNumber } from "@/lib/utils";
+import { generateReferenceNumber, generateStudentNumber, generateTemporaryPassword } from "@/lib/utils";
 import { ALL_COURSES } from "@/lib/constants";
+import { COMPANY } from "@/lib/constants";
+
+// ============================================
+// FILE UPLOAD TO SUPABASE STORAGE
+// ============================================
+
+export async function uploadApplicationFile(
+  formData: FormData
+): Promise<{ success: boolean; url?: string; error?: string }> {
+  try {
+    const file = formData.get("file") as File;
+    const folder = formData.get("folder") as string;
+    const applicationId = formData.get("applicationId") as string;
+
+    if (!file || file.size === 0) {
+      return { success: false, error: "No file provided" };
+    }
+
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      return { success: false, error: "File exceeds 5MB limit" };
+    }
+
+    const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "application/pdf"];
+    if (!allowedTypes.includes(file.type)) {
+      return { success: false, error: "Invalid file type. Only PDF, PNG, JPG allowed." };
+    }
+
+    const supabase = await createClient();
+
+    const ext = file.name.split(".").pop() || "pdf";
+    const fileName = `${folder}/${applicationId}_${Date.now()}.${ext}`;
+
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from("applications")
+      .upload(fileName, file, {
+        cacheControl: "3600",
+        upsert: false,
+      });
+
+    if (uploadError) {
+      console.error("[Upload] Storage error:", uploadError);
+      return { success: false, error: "Failed to upload file" };
+    }
+
+    const { data: urlData } = supabase.storage
+      .from("applications")
+      .getPublicUrl(fileName);
+
+    return { success: true, url: urlData.publicUrl };
+  } catch (error) {
+    console.error("[Upload] Unexpected error:", error);
+    return { success: false, error: "Upload failed" };
+  }
+}
 
 // ============================================
 // ENROLLMENT APPLICATION SUBMISSION
 // ============================================
 
 export interface EnrollmentFormData {
-  // Course
   courseSlug: string;
-  // Personal
   firstName: string;
   lastName: string;
   email: string;
   phone: string;
+  whatsapp: string;
   idNumber: string;
   dateOfBirth: string;
   gender: string;
+  nationality: string;
   province: string;
   address: string;
+  city: string;
   postalCode: string;
-  // Emergency
+  employmentStatus: string;
   emergencyContactName: string;
   emergencyContactPhone: string;
-  // Course Details
-  employmentStatus: string;
+  emergencyRelationship: string;
+  emergencyAltPhone: string;
   trainingType: string;
+  preferredIntakeDate: string;
   motivation: string;
-  // Consent
   consentGiven: boolean;
+  idCopyUrl?: string;
+  proofOfAddressUrl?: string;
+  passportUrl?: string;
+  previousCertificatesUrl?: string;
+  proofOfPaymentUrl?: string;
 }
 
 export async function submitApplication(formData: EnrollmentFormData) {
   try {
     const supabase = await createClient();
 
-    // Find the course
     const course = ALL_COURSES.find((c) => c.slug === formData.courseSlug);
     if (!course) {
       return { success: false, error: "Selected course not found." };
     }
 
-    // Look up course in database
     const { data: dbCourse, error: courseError } = await supabase
       .from("courses")
       .select("id")
@@ -60,8 +120,6 @@ export async function submitApplication(formData: EnrollmentFormData) {
       .single();
 
     if (courseError || !dbCourse) {
-      // If course not in DB yet, store application with course_id as null fallback
-      // For now, return error prompting DB setup
       return {
         success: false,
         error: "Course not found in database. Please ensure the database schema is set up.",
@@ -69,39 +127,91 @@ export async function submitApplication(formData: EnrollmentFormData) {
     }
 
     const referenceNumber = generateReferenceNumber();
+    const tempPassword = generateTemporaryPassword();
 
-    // Insert application
+    // Try to create auth user (skip if exists)
+    let userId: string | null = null;
+    const { data: existingUser } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("email", formData.email)
+      .single();
+
+    if (!existingUser) {
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: tempPassword,
+        options: {
+          data: {
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+          },
+        },
+      });
+
+      if (authError && !authError.message.includes("already")) {
+        console.error("[Application] Auth signup error:", authError);
+      }
+
+      userId = authData?.user?.id ?? null;
+    } else {
+      userId = existingUser.id;
+    }
+
+    // Insert application (with a fallback if user creation fails)
     const { data: application, error: appError } = await supabase
       .from("applications")
       .insert({
         reference_number: referenceNumber,
         course_id: dbCourse.id,
+        user_id: userId,
         first_name: formData.firstName,
         last_name: formData.lastName,
         email: formData.email,
         phone: formData.phone,
         id_number: formData.idNumber,
-        date_of_birth: formData.dateOfBirth,
+        date_of_birth: formData.dateOfBirth ? formData.dateOfBirth.split("T")[0] : null,
         gender: formData.gender,
         province: formData.province,
-        address: formData.address,
+        address: `${formData.address}, ${formData.city}`,
         postal_code: formData.postalCode,
         emergency_contact_name: formData.emergencyContactName,
         emergency_contact_phone: formData.emergencyContactPhone,
         employment_status: formData.employmentStatus,
         training_type: formData.trainingType,
         motivation: formData.motivation,
+        id_document_url: formData.idCopyUrl,
+        qualifications_url: formData.previousCertificatesUrl,
+        medical_fitness_url: null,
         consent_given: formData.consentGiven,
         consent_given_at: formData.consentGiven ? new Date().toISOString() : null,
         status: "submitted",
       })
-      .select("id")
+      .select("id, reference_number")
       .single();
 
     if (appError) {
       console.error("[Application] DB insert error:", appError);
       return { success: false, error: "Failed to submit application. Please try again." };
     }
+
+    // Log to audit
+    await supabase.from("audit_logs").insert({
+      user_id: userId,
+      action: "application_submitted",
+      entity_type: "applications",
+      entity_id: application.id,
+      details: { reference: referenceNumber, course: course.title },
+    }).maybeSingle();
+
+    // Create WhatsApp follow-up task
+    await supabase.from("whatsapp_queue").insert({
+      student_id: null,
+      assigned_to: null,
+      message_type: "new_application",
+      message_body: `Follow up with ${formData.firstName} ${formData.lastName} regarding ${course.title} application (${referenceNumber})`,
+      status: "pending",
+    }).maybeSingle();
 
     // Send confirmation email to applicant
     await sendApplicationConfirmation({
@@ -122,10 +232,22 @@ export async function submitApplication(formData: EnrollmentFormData) {
       phone: formData.phone,
     });
 
+    // Notify instructor
+    await sendInstructorNotification({
+      to: COMPANY.email,
+      studentName: `${formData.firstName} ${formData.lastName}`,
+      courseName: course.title,
+      phone: formData.phone,
+      email: formData.email,
+      referenceNumber,
+      whatsapp: formData.whatsapp || formData.phone,
+    });
+
     return {
       success: true,
       referenceNumber,
       applicationId: application.id,
+      tempPassword,
     };
   } catch (error) {
     console.error("[Application] Unexpected error:", error);

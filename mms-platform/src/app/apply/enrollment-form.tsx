@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, Suspense, useTransition } from "react";
+import { useState, Suspense, useTransition, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
-import { CheckCircle, ChevronLeft, ChevronRight, Upload, FileText, Loader2 } from "lucide-react";
-import { submitApplication } from "@/lib/actions";
+import { CheckCircle, ChevronLeft, ChevronRight, Upload, FileText, Loader2, X } from "lucide-react";
+import { submitApplication, uploadApplicationFile } from "@/lib/actions";
 import {
   ALL_COURSES,
   EMPLOYMENT_STATUSES,
@@ -13,6 +13,7 @@ import {
 } from "@/lib/constants";
 import { Container } from "@/components/shared/container";
 import { cn } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/client";
 
 const STEPS = [
   "Course Selection",
@@ -25,9 +26,7 @@ const STEPS = [
 ];
 
 interface FormData {
-  // Step 1
   course: string;
-  // Step 2
   fullName: string;
   surname: string;
   idNumber: string;
@@ -41,21 +40,22 @@ interface FormData {
   province: string;
   city: string;
   employmentStatus: string;
-  // Step 3
   emergencyContactName: string;
   emergencyRelationship: string;
   emergencyPhone: string;
   emergencyAltPhone: string;
-  // Step 4
   preferredIntakeDate: string;
   trainingType: string;
-  // Step 5
   idCopy: string;
+  idCopyFile: File | null;
   proofOfAddress: string;
+  proofOfAddressFile: File | null;
   passport: string;
+  passportFile: File | null;
   previousCertificates: string;
+  previousCertificatesFile: File | null;
   proofOfPayment: string;
-  // Step 6
+  proofOfPaymentFile: File | null;
   popiaConsent: boolean;
   accuracyConfirm: boolean;
 }
@@ -82,10 +82,15 @@ const initialData: FormData = {
   preferredIntakeDate: "",
   trainingType: "",
   idCopy: "",
+  idCopyFile: null,
   proofOfAddress: "",
+  proofOfAddressFile: null,
   passport: "",
+  passportFile: null,
   previousCertificates: "",
+  previousCertificatesFile: null,
   proofOfPayment: "",
+  proofOfPaymentFile: null,
   popiaConsent: false,
   accuracyConfirm: false,
 };
@@ -149,27 +154,43 @@ function EnrollmentFormInner() {
   };
   const prev = () => setStep((s) => Math.max(s - 1, 0));
 
+  const uploadFile = async (file: File, folder: string, appId: string): Promise<string | null> => {
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("folder", folder);
+    fd.append("applicationId", appId);
+    const result = await uploadApplicationFile(fd);
+    return result.success ? result.url ?? null : null;
+  };
+
   const handleSubmit = () => {
     if (validateStep()) {
       setSubmitError("");
       startTransition(async () => {
         try {
+          // First, submit the application to get an ID
           const result = await submitApplication({
             courseSlug: data.course,
             firstName: data.fullName,
             lastName: data.surname,
             email: data.emailAddress,
             phone: data.mobileNumber,
+            whatsapp: data.whatsappNumber || data.mobileNumber,
             idNumber: data.idNumber,
             dateOfBirth: data.dateOfBirth,
             gender: data.gender,
+            nationality: data.nationality,
             province: data.province,
             address: data.physicalAddress,
+            city: data.city,
             postalCode: "",
+            employmentStatus: data.employmentStatus,
             emergencyContactName: data.emergencyContactName,
             emergencyContactPhone: data.emergencyPhone,
-            employmentStatus: data.employmentStatus,
+            emergencyRelationship: data.emergencyRelationship,
+            emergencyAltPhone: data.emergencyAltPhone,
             trainingType: data.trainingType,
+            preferredIntakeDate: data.preferredIntakeDate,
             motivation: "",
             consentGiven: data.popiaConsent,
           });
@@ -177,8 +198,17 @@ function EnrollmentFormInner() {
           if (result.success && result.referenceNumber) {
             setReferenceNumber(result.referenceNumber);
             setSubmitted(true);
+
+            // Upload files in the background if we have an app ID
+            if (result.applicationId) {
+              const appId = result.applicationId;
+              if (data.idCopyFile) uploadFile(data.idCopyFile, "id_documents", appId);
+              if (data.proofOfAddressFile) uploadFile(data.proofOfAddressFile, "proof_of_address", appId);
+              if (data.passportFile) uploadFile(data.passportFile, "passports", appId);
+              if (data.previousCertificatesFile) uploadFile(data.previousCertificatesFile, "certificates", appId);
+              if (data.proofOfPaymentFile) uploadFile(data.proofOfPaymentFile, "proof_of_payment", appId);
+            }
           } else {
-            // Fallback: show success with local ref if DB not set up yet
             const localRef = `MMS-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 999999)).padStart(6, "0")}`;
             setReferenceNumber(localRef);
             setSubmitted(true);
@@ -187,7 +217,6 @@ function EnrollmentFormInner() {
             }
           }
         } catch {
-          // Network error - still show success locally
           const localRef = `MMS-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 999999)).padStart(6, "0")}`;
           setReferenceNumber(localRef);
           setSubmitted(true);
@@ -351,11 +380,11 @@ function EnrollmentFormInner() {
         {/* STEP 5: Document Uploads */}
         {step === 4 && (
           <div className="grid gap-4 sm:grid-cols-2">
-            <FileUploadField label="ID Copy" required value={data.idCopy} onChange={(v) => update("idCopy", v)} />
-            <FileUploadField label="Proof of Address" required value={data.proofOfAddress} onChange={(v) => update("proofOfAddress", v)} />
-            <FileUploadField label="Passport (foreign nationals)" value={data.passport} onChange={(v) => update("passport", v)} />
-            <FileUploadField label="Previous Certificates (optional)" value={data.previousCertificates} onChange={(v) => update("previousCertificates", v)} />
-            <FileUploadField label="Proof of Payment (optional)" value={data.proofOfPayment} onChange={(v) => update("proofOfPayment", v)} className="sm:col-span-2" />
+            <FileUploadField label="ID Copy" required value={data.idCopy} file={data.idCopyFile} onChange={(v, f) => { update("idCopy", v); setData((prev) => ({ ...prev, idCopyFile: f })); }} />
+            <FileUploadField label="Proof of Address" required value={data.proofOfAddress} file={data.proofOfAddressFile} onChange={(v, f) => { update("proofOfAddress", v); setData((prev) => ({ ...prev, proofOfAddressFile: f })); }} />
+            <FileUploadField label="Passport (foreign nationals)" value={data.passport} file={data.passportFile} onChange={(v, f) => { update("passport", v); setData((prev) => ({ ...prev, passportFile: f })); }} />
+            <FileUploadField label="Previous Certificates (optional)" value={data.previousCertificates} file={data.previousCertificatesFile} onChange={(v, f) => { update("previousCertificates", v); setData((prev) => ({ ...prev, previousCertificatesFile: f })); }} />
+            <FileUploadField label="Proof of Payment (optional)" value={data.proofOfPayment} file={data.proofOfPaymentFile} onChange={(v, f) => { update("proofOfPayment", v); setData((prev) => ({ ...prev, proofOfPaymentFile: f })); }} className="sm:col-span-2" />
             <p className="text-xs text-muted-foreground sm:col-span-2">
               Accepted formats: PDF, PNG, JPG. Maximum file size: 5MB.
             </p>
@@ -532,9 +561,9 @@ function SelectField({
 }
 
 function FileUploadField({
-  label, value, onChange, required, className,
+  label, value, file, onChange, required, className,
 }: {
-  label: string; value: string; onChange: (v: string) => void; required?: boolean; className?: string;
+  label: string; value: string; file?: File | null; onChange: (name: string, file: File | null) => void; required?: boolean; className?: string;
 }) {
   return (
     <div className={className}>
@@ -543,17 +572,33 @@ function FileUploadField({
       </label>
       <div
         className={cn(
-          "flex items-center gap-3 rounded-lg border border-dashed border-white/10 bg-industrial-black px-4 py-3 transition-colors",
-          value && "border-gold/30"
+          "flex items-center gap-3 rounded-lg border border-dashed bg-industrial-black px-4 py-3 transition-colors",
+          value ? "border-gold/30" : "border-white/10"
         )}
       >
         <Upload size={16} className={value ? "text-gold" : "text-muted-foreground"} />
-        <input
-          type="file"
-          accept=".pdf,.png,.jpg,.jpeg"
-          onChange={(e) => onChange(e.target.files?.[0]?.name || "")}
-          className="w-full text-xs text-muted-foreground file:mr-3 file:rounded file:border-0 file:bg-gold/10 file:px-3 file:py-1 file:text-xs file:font-medium file:text-gold"
-        />
+        {value ? (
+          <span className="flex flex-1 items-center justify-between gap-2 text-xs text-off-white">
+            <span className="truncate">{file?.name || value}</span>
+            <button
+              type="button"
+              onClick={() => onChange("", null)}
+              className="ml-auto rounded p-1 text-muted-foreground hover:text-red-400"
+            >
+              <X size={14} />
+            </button>
+          </span>
+        ) : (
+          <input
+            type="file"
+            accept=".pdf,.png,.jpg,.jpeg"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              onChange(f?.name || "", f || null);
+            }}
+            className="w-full text-xs text-muted-foreground file:mr-3 file:rounded file:border-0 file:bg-gold/10 file:px-3 file:py-1 file:text-xs file:font-medium file:text-gold"
+          />
+        )}
       </div>
     </div>
   );

@@ -625,6 +625,168 @@ export async function updateBlogPost(postId: string, formData: FormData) {
 }
 
 // ============================================
+// AI CHATBOT ACTIONS
+// ============================================
+
+const AI_SYSTEM_PROMPT = `You are an AI assistant for Mpumalanga Mining Solutions (MMS), 
+a premier mining and heavy machinery training institution in Middelburg, Mpumalanga, South Africa.
+
+Your role:
+- Help prospective students with course information, enrollment, and requirements
+- Answer questions about training programs, prices, durations, and career paths
+- Provide general information about the institution, location, and contact details
+- Be helpful, professional, and concise
+- If you don't know something, say so honestly
+- Never share pricing that you're not confident about — direct them to the website or contact form
+
+Keep responses brief and scannable. Use bullet points when helpful.`;
+
+export async function chatWithAI(formData: FormData) {
+  const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  const message = formData.get("message") as string;
+  const sessionId = formData.get("sessionId") as string;
+
+  if (!message || !sessionId) {
+    return { success: false, error: "Message and session are required." };
+  }
+
+  // Store user message
+  await supabase.from("ai_conversations").insert({
+    user_id: user?.id ?? null,
+    session_id: sessionId,
+    role: "user",
+    message,
+  }).maybeSingle();
+
+  // Get recent conversation history
+  const { data: history } = await supabase
+    .from("ai_conversations")
+    .select("role, message")
+    .eq("session_id", sessionId)
+    .order("created_at", { ascending: false })
+    .limit(10);
+
+  const conversationHistory = (history ?? []).reverse();
+
+  // Build messages array for the API
+  const messages: { role: string; content: string }[] = [
+    { role: "system", content: AI_SYSTEM_PROMPT },
+    ...conversationHistory.map((h) => ({ role: h.role, content: h.message })),
+  ];
+
+  let reply = "";
+
+  // Try NVIDIA NIM API if key is configured
+  const apiKey = process.env.NVIDIA_NIM_API_KEY;
+  const apiUrl = process.env.NVIDIA_NIM_API_URL ?? "https://integrate.api.nvidia.com/v1/chat/completions";
+
+  if (apiKey) {
+    try {
+      const res = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: process.env.NVIDIA_NIM_MODEL ?? "meta/llama-3.1-8b-instruct",
+          messages,
+          max_tokens: 500,
+          temperature: 0.7,
+        }),
+      });
+
+      if (!res.ok) {
+        console.error("[AI] API error:", res.status, await res.text());
+        reply = "I'm sorry, I'm having trouble connecting right now. Please try again later.";
+      } else {
+        const data = await res.json();
+        reply = data.choices?.[0]?.message?.content ?? "I'm not sure how to respond to that.";
+      }
+    } catch (err) {
+      console.error("[AI] Fetch error:", err);
+      reply = "I'm sorry, I encountered an error. Please try again.";
+    }
+  } else {
+    // Fallback: simple keyword-based responses
+    reply = generateFallbackResponse(message);
+  }
+
+  // Store assistant response
+  await supabase.from("ai_conversations").insert({
+    user_id: user?.id ?? null,
+    session_id: sessionId,
+    role: "assistant",
+    message: reply,
+  }).maybeSingle();
+
+  return { success: true, reply, sessionId };
+}
+
+function generateFallbackResponse(message: string): string {
+  const lower = message.toLowerCase();
+
+  if (lower.includes("course") || lower.includes("train") || lower.includes("program")) {
+    return `We offer **17 training programs** including Forklift, Excavator, Dump Truck 777D, Mobile Crane, and more. 
+
+Visit our **Courses page** to see the full list: https://mpumalangaminingsolutions.co.za/courses
+
+Or contact us for personalized advice.`;
+  }
+
+  if (lower.includes("price") || lower.includes("cost") || lower.includes("fee") || lower.includes("pay")) {
+    return `Our course fees range from **R5,000** (First Aid) to **R32,000** (Mobile Crane).
+
+For exact pricing and payment plan options, please visit the course page or contact our admissions team:
+
+📧 info@mpumalangaminingsolutions.co.za
+📞 +27 000 000 000`;
+  }
+
+  if (lower.includes("apply") || lower.includes("enroll") || lower.includes("register") || lower.includes("admission")) {
+    return `Ready to apply? Here's how:
+
+1. **Choose your course** on our Courses page
+2. Click **"Apply Now"** on your chosen course
+3. Complete the online application form
+4. Our team will review and contact you within 48 hours
+
+Start your application here: https://mpumalangaminingsolutions.co.za/apply`;
+  }
+
+  if (lower.includes("location") || lower.includes("address") || lower.includes("where") || lower.includes("middelburg")) {
+    return `We are located in **Middelburg, Mpumalanga**, South Africa.
+
+📍 Middelburg, Mpumalanga
+📧 info@mpumalangaminingsolutions.co.za
+📞 +27 000 000 000`;
+  }
+
+  if (lower.includes("hello") || lower.includes("hi") || lower.includes("hey") || lower.includes("good")) {
+    return `Hello! 👋 Welcome to Mpumalanga Mining Solutions.
+
+I can help you with:
+• Course information and pricing
+• Application and enrollment
+• Training requirements
+• Location and contact details
+
+What would you like to know?`;
+  }
+
+  return `Thanks for your question! I'm here to help with information about our training programs, enrollment, and more.
+
+For specific queries, you can also:
+• Browse our **Courses**: https://mpumalangaminingsolutions.co.za/courses
+• **Contact us**: info@mpumalangaminingsolutions.co.za
+• Call us: +27 000 000 000
+
+How else can I assist you?`;
+}
+
+// ============================================
 // SUPPORT TICKET ACTIONS
 // ============================================
 

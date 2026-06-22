@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Bebas_Neue, Montserrat, Inter } from "next/font/google";
 import { COMPANY } from "@/lib/constants";
+import { ChatWidget } from "@/components/chat/chat-widget";
 import "./globals.css";
 
 const bebasNeue = Bebas_Neue({
@@ -83,6 +84,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         {children}
+        <ChatWidget />
       </body>
     </html>
   );

@@ -1,9 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  turbopack: {
-    root: "C:/Users/KAIRO VILANE NATHAN/Desktop/MMS",
-  },
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [

@@ -141,7 +141,7 @@ export default async function CourseLearningPage({ params }: Props) {
                       {moduleLessons.map((lesson) => {
                         const isCompleted = completedIds.has(lesson.id);
                         return (
-                          <div key={lesson.id} className="flex items-center gap-3 px-5 py-3 transition-colors hover:bg-white/5">
+                          <Link key={lesson.id} href={`/portal/courses/${slug}/lessons/${lesson.id}`} className="flex items-center gap-3 px-5 py-3 transition-colors hover:bg-white/5">
                             <div className={cn(
                               "flex size-8 shrink-0 items-center justify-center rounded-lg",
                               isCompleted ? "bg-green-500/10" : "bg-white/5"
@@ -163,7 +163,7 @@ export default async function CourseLearningPage({ params }: Props) {
                               </p>
                             </div>
                             <ChevronRight className="size-4 text-muted-foreground" />
-                          </div>
+                          </Link>
                         );
                       })}
                     </div>
@@ -176,7 +176,7 @@ export default async function CourseLearningPage({ params }: Props) {
             {lessons?.filter((l) => !l.module_id).map((lesson) => {
               const isCompleted = completedIds.has(lesson.id);
               return (
-                <div key={lesson.id} className="flex items-center gap-3 rounded-xl border border-white/5 bg-surface px-5 py-3 transition-colors hover:border-gold/20">
+                <Link key={lesson.id} href={`/portal/courses/${slug}/lessons/${lesson.id}`} className="flex items-center gap-3 rounded-xl border border-white/5 bg-surface px-5 py-3 transition-colors hover:border-gold/20">
                   <div className={cn(
                     "flex size-8 shrink-0 items-center justify-center rounded-lg",
                     isCompleted ? "bg-green-500/10" : "bg-white/5"
@@ -198,7 +198,7 @@ export default async function CourseLearningPage({ params }: Props) {
                     </p>
                   </div>
                   <ChevronRight className="size-4 text-muted-foreground" />
-                </div>
+                </Link>
               );
             })}
           </>

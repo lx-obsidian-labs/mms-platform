@@ -463,6 +463,77 @@ export async function updateApplicationStatus(
 }
 
 // ============================================
+// LESSON PROGRESS ACTIONS
+// ============================================
+
+export async function markLessonComplete(formData: FormData) {
+  const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Unauthorized" };
+
+  const lessonId = formData.get("lessonId") as string;
+  const courseId = formData.get("courseId") as string;
+  if (!lessonId || !courseId) return { success: false, error: "Missing required fields" };
+
+  const { data: student } = await supabase
+    .from("students")
+    .select("id")
+    .eq("user_id", user.id)
+    .single();
+
+  if (!student) return { success: false, error: "Student profile not found" };
+
+  const { data: enrollment } = await supabase
+    .from("enrollments")
+    .select("id, progress_percentage")
+    .eq("student_id", student.id)
+    .eq("course_id", courseId)
+    .single();
+
+  if (!enrollment) return { success: false, error: "Enrollment not found" };
+
+  // Upsert lesson progress
+  const { error: progressError } = await supabase
+    .from("lesson_progress")
+    .upsert({
+      enrollment_id: enrollment.id,
+      lesson_id: lessonId,
+      completed: true,
+      completed_at: new Date().toISOString(),
+    }, { onConflict: "enrollment_id, lesson_id" });
+
+  if (progressError) {
+    console.error("[Progress] Upsert error:", progressError);
+    return { success: false, error: "Failed to update progress" };
+  }
+
+  // Recalculate overall progress
+  const { count: totalLessons } = await supabase
+    .from("lessons")
+    .select("*", { count: "exact", head: true })
+    .eq("course_id", courseId)
+    .eq("is_published", true);
+
+  const { count: completedLessons } = await supabase
+    .from("lesson_progress")
+    .select("id", { count: "exact", head: true })
+    .eq("enrollment_id", enrollment.id)
+    .eq("completed", true);
+
+  const newPct = totalLessons && totalLessons > 0
+    ? Math.round(((completedLessons ?? 0) / totalLessons) * 100)
+    : enrollment.progress_percentage;
+
+  await supabase
+    .from("enrollments")
+    .update({ progress_percentage: newPct })
+    .eq("id", enrollment.id);
+
+  return { success: true, progress: newPct };
+}
+
+// ============================================
 // SUPPORT TICKET ACTIONS
 // ============================================
 

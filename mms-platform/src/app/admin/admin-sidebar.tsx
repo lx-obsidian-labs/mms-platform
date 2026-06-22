@@ -13,6 +13,7 @@ import {
   Shield,
   ChevronLeft,
   Menu,
+  Newspaper,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -28,6 +29,7 @@ const NAV_ITEMS = [
   { label: "Instructors", href: "/admin/instructors", icon: Users },
   { label: "Support Tickets", href: "/admin/support", icon: FileText },
   { label: "Reports", href: "/admin/reports", icon: FileText },
+  { label: "Blog Posts", href: "/admin/blog", icon: Newspaper },
   { label: "Settings", href: "/admin/settings", icon: Settings },
 ];
 

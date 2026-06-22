@@ -534,6 +534,97 @@ export async function markLessonComplete(formData: FormData) {
 }
 
 // ============================================
+// BLOG POST ACTIONS
+// ============================================
+
+export async function createBlogPost(formData: FormData) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Unauthorized" };
+
+  const title = (formData.get("title") as string)?.trim();
+  const excerpt = (formData.get("excerpt") as string)?.trim();
+  const content = (formData.get("content") as string)?.trim();
+  const category = (formData.get("category") as string)?.trim() || "General";
+  const author_name = (formData.get("author_name") as string)?.trim() || "MMS Admin";
+  const published = formData.get("published") === "true";
+  const tags = (formData.get("tags") as string)?.split(",").map((t) => t.trim()).filter(Boolean) ?? [];
+
+  if (!title || !content) {
+    return { success: false, error: "Title and content are required." };
+  }
+
+  const slug = title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  const { error } = await supabase.from("blog_posts").insert({
+    title,
+    slug,
+    excerpt,
+    content,
+    category,
+    author_name,
+    published,
+    tags,
+    published_at: published ? new Date().toISOString() : null,
+  });
+
+  if (error) {
+    console.error("[Blog] Create error:", error);
+    return { success: false, error: "Failed to create post: " + error.message };
+  }
+
+  return { success: true, slug };
+}
+
+export async function updateBlogPost(postId: string, formData: FormData) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Unauthorized" };
+
+  const title = (formData.get("title") as string)?.trim();
+  const excerpt = (formData.get("excerpt") as string)?.trim();
+  const content = (formData.get("content") as string)?.trim();
+  const category = (formData.get("category") as string)?.trim();
+  const author_name = (formData.get("author_name") as string)?.trim();
+  const published = formData.get("published") === "true";
+  const tags = (formData.get("tags") as string)?.split(",").map((t) => t.trim()).filter(Boolean) ?? [];
+
+  if (!title || !content) {
+    return { success: false, error: "Title and content are required." };
+  }
+
+  const slug = title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  const updates: Record<string, unknown> = {
+    title,
+    slug,
+    excerpt,
+    content,
+    category,
+    author_name,
+    tags,
+  };
+
+  if (published && !formData.get("published_at")) {
+    updates.published_at = new Date().toISOString();
+  }
+
+  const { error } = await supabase.from("blog_posts").update(updates).eq("id", postId);
+
+  if (error) {
+    return { success: false, error: "Failed to update post." };
+  }
+
+  return { success: true };
+}
+
+// ============================================
 // SUPPORT TICKET ACTIONS
 // ============================================
 

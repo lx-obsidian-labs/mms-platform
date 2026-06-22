@@ -20,6 +20,7 @@ export const NAV_LINKS = [
   { label: "Home", href: "/" },
   { label: "About", href: "/about" },
   { label: "Courses", href: "/courses" },
+  { label: "Blog", href: "/blog" },
   { label: "Apply", href: "/apply" },
   { label: "Contact", href: "/contact" },
   { label: "Support", href: "/support" },

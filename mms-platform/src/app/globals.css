@@ -1,0 +1,164 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* ============================================
+   MMS DESIGN SYSTEM — Mpumalanga Mining Solutions
+   Brand: Premium, Industrial, Corporate, Modern
+   ============================================ */
+
+/* --- Custom Fonts (loaded via next/font in layout.tsx) --- */
+/* Font variables are set on :root by next/font and referenced here */
+
+/* --- CSS Custom Properties --- */
+:root {
+  /* Brand Colors */
+  --mms-gold: #D9A400;
+  --mms-gold-light: #E8B800;
+  --mms-gold-dark: #B88D00;
+  --mms-black: #111111;
+  --mms-surface: #1A1A1A;
+  --mms-surface-light: #222222;
+  --mms-silver: #C0C0C0;
+  --mms-white: #F7F7F7;
+
+  /* Shadcn / Radix mapping */
+  --background: var(--mms-black);
+  --foreground: var(--mms-white);
+  --card: var(--mms-surface);
+  --card-foreground: var(--mms-white);
+  --popover: var(--mms-surface);
+  --popover-foreground: var(--mms-white);
+  --primary: var(--mms-gold);
+  --primary-foreground: var(--mms-black);
+  --secondary: var(--mms-surface-light);
+  --secondary-foreground: var(--mms-white);
+  --muted: var(--mms-surface);
+  --muted-foreground: var(--mms-silver);
+  --accent: var(--mms-surface-light);
+  --accent-foreground: var(--mms-white);
+  --destructive: #EF4444;
+  --destructive-foreground: var(--mms-white);
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.08);
+  --ring: var(--mms-gold);
+  --radius: 0.5rem;
+
+  /* Semantic tokens */
+  --color-success: #22C55E;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  --color-info: #3B82F6;
+
+  /* Spacing scale */
+  --section-padding: clamp(3rem, 8vw, 6rem);
+  --container-max: 1200px;
+  --container-padding: clamp(1rem, 4vw, 2rem);
+}
+
+/* --- TailwindCSS v4 Theme Extensions --- */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* MMS Brand Colors */
+  --color-gold: var(--mms-gold);
+  --color-gold-light: var(--mms-gold-light);
+  --color-gold-dark: var(--mms-gold-dark);
+  --color-industrial-black: var(--mms-black);
+  --color-surface: var(--mms-surface);
+  --color-surface-light: var(--mms-surface-light);
+  --color-silver: var(--mms-silver);
+  --color-off-white: var(--mms-white);
+
+  /* MMS Typography */
+  --font-display: var(--font-bebas-neue);
+  --font-heading: var(--font-montserrat);
+  --font-body: var(--font-inter);
+}
+
+/* --- Base Styles --- */
+* {
+  border-color: var(--border);
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-body), system-ui, sans-serif;
+  line-height: 1.6;
+}
+
+/* --- Typography Base --- */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading), system-ui, sans-serif;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+/* --- Selection --- */
+::selection {
+  background-color: var(--mms-gold);
+  color: var(--mms-black);
+}
+
+/* --- Focus Visible --- */
+:focus-visible {
+  outline: 2px solid var(--mms-gold);
+  outline-offset: 2px;
+}
+
+/* --- Scrollbar Styling --- */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--mms-black);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--mms-surface-light);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--mms-silver);
+}
+
+/* --- Reduced Motion --- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

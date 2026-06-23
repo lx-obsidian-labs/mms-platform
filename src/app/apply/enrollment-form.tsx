@@ -210,18 +210,10 @@ function EnrollmentFormInner() {
               if (data.proofOfPaymentFile) uploadFile(data.proofOfPaymentFile, "proof_of_payment", appId);
             }
           } else {
-            const localRef = `MMS-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 999999)).padStart(6, "0")}`;
-            setReferenceNumber(localRef);
-            setSubmitted(true);
-            if (result.error) {
-              setSubmitError(result.error);
-            }
+            setSubmitError(result.error || "Submission failed. Please try again.");
           }
         } catch {
-          const localRef = `MMS-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 999999)).padStart(6, "0")}`;
-          setReferenceNumber(localRef);
-          setSubmitted(true);
-          setSubmitError("Could not connect to server. Your application was recorded locally.");
+          setSubmitError("Could not connect to server. Please check your internet and try again.");
         }
       });
     }
@@ -476,6 +468,11 @@ function EnrollmentFormInner() {
               <ReviewItem label="Previous Certificates" value={data.previousCertificates || "Not uploaded"} />
               <ReviewItem label="Proof of Payment" value={data.proofOfPayment || "Not uploaded"} />
             </ReviewGroup>
+            {submitError && (
+              <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
+                {submitError}
+              </div>
+            )}
           </div>
         )}
 

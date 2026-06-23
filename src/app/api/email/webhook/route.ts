@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Webhook } from "standardwebhooks";
 import { createClient } from "@/lib/supabase/server";
 
 type ResendWebhookPayload = {
@@ -25,9 +26,25 @@ type ResendWebhookPayload = {
 
 export async function POST(request: NextRequest) {
   try {
-    const payload: ResendWebhookPayload = await request.json();
+    const webhookSecret = process.env.RESEND_WEBHOOK_SECRET;
+    if (!webhookSecret) {
+      console.error("[Email Webhook] Missing RESEND_WEBHOOK_SECRET");
+      return NextResponse.json(
+        { error: "Webhook secret not configured" },
+        { status: 500 }
+      );
+    }
 
-    const { type, data } = payload;
+    const rawBody = await request.text();
+
+    const wh = new Webhook(webhookSecret);
+    const verified = wh.verify(rawBody, {
+      "webhook-id": request.headers.get("webhook-id") || "",
+      "webhook-timestamp": request.headers.get("webhook-timestamp") || "",
+      "webhook-signature": request.headers.get("webhook-signature") || "",
+    }) as ResendWebhookPayload;
+
+    const { type, data } = verified;
     const recipient = data.to?.[0] || "unknown";
     const subject = data.subject || "";
     const messageId = data.email_id || "";
@@ -47,7 +64,7 @@ export async function POST(request: NextRequest) {
       provider_message_id: messageId,
       recipient,
       subject,
-      event_data: data,
+      event_data: data as object,
     });
 
     // Update email_logs status based on event type

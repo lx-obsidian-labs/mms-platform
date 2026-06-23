@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { Award, CheckCircle, XCircle, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { CertActions } from "./cert-actions";
 
 export const metadata: Metadata = {
   title: "Certificate Management",
@@ -14,7 +15,7 @@ export default async function AdminCertificatesPage() {
   const [certificatesResult] = await Promise.all([
     supabase
       .from("certificates")
-      .select("*, enrollments!inner(courses(title), students!inner(profiles!inner(first_name, last_name)))")
+      .select("*, enrollments!inner(id, courses(title), students!inner(profiles!inner(first_name, last_name)))")
       .order("created_at", { ascending: false })
       .limit(50),
   ]);
@@ -109,16 +110,7 @@ export default async function AdminCertificatesPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex gap-2">
-                        {cert.pdf_url && (
-                          <a href={cert.pdf_url} target="_blank" rel="noopener noreferrer" className="rounded-lg border border-white/10 px-3 py-1 text-[11px] text-off-white transition-colors hover:border-gold/30">
-                            View PDF
-                          </a>
-                        )}
-                        <button className="rounded-lg border border-white/10 px-3 py-1 text-[11px] text-off-white transition-colors hover:border-gold/30">
-                          Issue
-                        </button>
-                      </div>
+                      <CertActions enrollmentId={String(enrollment?.id ?? "")} pdfUrl={cert.pdf_url} />
                     </td>
                   </tr>
                 );

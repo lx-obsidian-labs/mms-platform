@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
+import Link from "next/link";
 import { LifeBuoy } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -78,9 +79,9 @@ export default async function AdminSupportPage() {
                       {new Date(ticket.created_at).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-3">
-                      <button className="rounded-lg border border-white/10 px-3 py-1 text-[11px] text-off-white transition-colors hover:border-gold/30">
+                      <Link href={`/admin/support/${ticket.id}`} className="inline-block rounded-lg border border-white/10 px-3 py-1 text-[11px] text-off-white transition-colors hover:border-gold/30">
                         View
-                      </button>
+                      </Link>
                     </td>
                   </tr>
                 );

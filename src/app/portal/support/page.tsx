@@ -58,7 +58,7 @@ export default async function PortalSupportPage() {
             <p className="text-xs text-muted-foreground">{COMPANY.email}</p>
           </div>
         </a>
-        <a href="https://wa.me/27000000000" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 rounded-xl border border-white/5 bg-surface p-4 transition-all hover:border-gold/20">
+        <a href={`https://wa.me/${COMPANY.whatsapp.replace(/[^0-9]/g, "")}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 rounded-xl border border-white/5 bg-surface p-4 transition-all hover:border-gold/20">
           <MessageSquare className="size-5 text-gold" />
           <div>
             <p className="text-xs font-medium text-off-white">WhatsApp</p>

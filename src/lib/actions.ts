@@ -14,7 +14,7 @@ import {
   sendInstructorNotification,
   sendWelcomeStudent,
 } from "@/lib/email";
-import { generateReferenceNumber, generateStudentNumber, generateTemporaryPassword } from "@/lib/utils";
+import { generateReferenceNumber, generateStudentNumber, generateTemporaryPassword, generateCertificateNumber } from "@/lib/utils";
 import { ALL_COURSES } from "@/lib/constants";
 import { COMPANY } from "@/lib/constants";
 
@@ -828,6 +828,124 @@ export async function createSupportTicket(formData: FormData) {
   }
 
   return { success: true };
+}
+
+export async function replyToSupportTicket(formData: FormData) {
+  const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Unauthorized" };
+
+  const ticketId = formData.get("ticketId") as string;
+  const message = formData.get("message") as string;
+
+  if (!ticketId || !message) {
+    return { success: false, error: "Message is required." };
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  const isStaff = profile?.role === "admin" || profile?.role === "instructor" || profile?.role === "staff";
+
+  const { error } = await supabase.from("support_ticket_replies").insert({
+    ticket_id: ticketId,
+    user_id: user.id,
+    message,
+    is_staff: isStaff,
+  });
+
+  if (error) {
+    console.error("[Ticket Reply] Error:", error);
+    return { success: false, error: "Failed to send reply." };
+  }
+
+  return { success: true };
+}
+
+export async function updateTicketStatus(ticketId: string, status: string) {
+  const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Unauthorized" };
+
+  const update: Record<string, string> = { status };
+  if (status === "resolved" || status === "closed") {
+    update.resolved_at = new Date().toISOString();
+  }
+
+  const { error } = await supabase
+    .from("support_tickets")
+    .update(update)
+    .eq("id", ticketId);
+
+  if (error) {
+    console.error("[Ticket Status] Error:", error);
+    return { success: false, error: "Failed to update ticket status." };
+  }
+
+  return { success: true };
+}
+
+export async function issueCertificate(enrollmentId: string) {
+  const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Unauthorized" };
+
+  const { data: enrollment } = await supabase
+    .from("enrollments")
+    .select("*, courses(title), students!inner(profiles!inner(first_name, last_name))")
+    .eq("id", enrollmentId)
+    .single();
+
+  if (!enrollment) return { success: false, error: "Enrollment not found" };
+
+  if (enrollment.certificate_id) {
+    return { success: false, error: "Certificate already issued for this enrollment" };
+  }
+
+  const certificateNumber = generateCertificateNumber();
+
+  const { data: cert, error: certError } = await supabase
+    .from("certificates")
+    .insert({
+      enrollment_id: enrollmentId,
+      certificate_number: certificateNumber,
+      status: "issued",
+      issued_at: new Date().toISOString(),
+      pdf_url: null,
+    })
+    .select()
+    .single();
+
+  if (certError) {
+    console.error("[Certificate] Create error:", certError);
+    return { success: false, error: "Failed to create certificate" };
+  }
+
+  const { error: enrollError } = await supabase
+    .from("enrollments")
+    .update({ certificate_id: cert.id, status: "completed", completed_at: new Date().toISOString() })
+    .eq("id", enrollmentId);
+
+  if (enrollError) {
+    console.error("[Certificate] Enroll update error:", enrollError);
+  }
+
+  const { error: pdfError } = await supabase
+    .from("certificates")
+    .update({ pdf_url: `/api/certificates/${cert.id}/download` })
+    .eq("id", cert.id);
+
+  if (pdfError) {
+    console.error("[Certificate] PDF URL update error:", pdfError);
+  }
+
+  return { success: true, certificateId: cert.id };
 }
 
 export async function getDashboardStats() {

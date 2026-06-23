@@ -4,7 +4,7 @@
 
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 import {
   sendApplicationConfirmation,
   sendApplicationStatusUpdate,
@@ -141,18 +141,18 @@ export async function submitApplication(formData: EnrollmentFormData) {
       .single();
 
     if (!existingUser) {
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      const admin = createAdminClient();
+      const { data: authData, error: authError } = await admin.auth.admin.createUser({
         email: formData.email,
         password: tempPassword,
-        options: {
-          data: {
-            first_name: formData.firstName,
-            last_name: formData.lastName,
-          },
+        email_confirm: true,
+        user_metadata: {
+          first_name: formData.firstName,
+          last_name: formData.lastName,
         },
       });
 
-      if (authError && !authError.message.includes("already")) {
+      if (authError) {
         console.error("[Application] Auth signup error:", authError);
       }
 

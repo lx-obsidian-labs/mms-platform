@@ -18,16 +18,18 @@ import {
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
+import { AiChatbot } from "@/components/ai-chatbot";
+import { OnboardingTour } from "@/components/onboarding-tour";
 
 const NAV_ITEMS = [
-  { label: "Dashboard", href: "/portal/dashboard", icon: LayoutDashboard },
-  { label: "My Courses", href: "/portal/courses", icon: BookOpen },
-  { label: "Certificates", href: "/portal/certificates", icon: Award },
-  { label: "Documents", href: "/portal/documents", icon: FileText },
-  { label: "Notifications", href: "/portal/notifications", icon: Bell },
-  { label: "Refer & Earn", href: "/portal/refer", icon: Award },
-  { label: "Support", href: "/portal/support", icon: LifeBuoy },
-  { label: "Profile", href: "/portal/profile", icon: User },
+  { label: "Dashboard", href: "/portal/dashboard", icon: LayoutDashboard, tour: "dashboard" },
+  { label: "My Courses", href: "/portal/courses", icon: BookOpen, tour: "courses" },
+  { label: "Certificates", href: "/portal/certificates", icon: Award, tour: "certificates" },
+  { label: "Documents", href: "/portal/documents", icon: FileText, tour: null },
+  { label: "Notifications", href: "/portal/notifications", icon: Bell, tour: null },
+  { label: "Refer & Earn", href: "/portal/refer", icon: Award, tour: "refer" },
+  { label: "Support", href: "/portal/support", icon: LifeBuoy, tour: "support" },
+  { label: "Profile", href: "/portal/profile", icon: User, tour: null },
 ];
 
 export default function PortalLayout({ children }: { children: React.ReactNode }) {
@@ -55,6 +57,9 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
 
   return (
     <div className="min-h-screen bg-background">
+      <OnboardingTour />
+      <AiChatbot />
+
       {/* Background decoration */}
       <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
         <div className="absolute -right-40 -top-40 size-96 rounded-full bg-gold/3 blur-3xl" />
@@ -84,6 +89,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
 
       {/* Sidebar */}
       <aside
+        data-tour="sidebar"
         className={cn(
           "fixed inset-y-0 left-0 z-40 flex flex-col border-r border-white/5 bg-[#0d0d0d] transition-all duration-300",
           collapsed ? "w-[72px]" : "w-64",
@@ -126,6 +132,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
                   <Link
                     href={item.href}
                     onClick={() => setMobileOpen(false)}
+                    data-tour={item.tour}
                     className={cn(
                       "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
                       isActive
@@ -171,7 +178,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
               href="/"
               className="mt-1 flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-white/30 transition-colors hover:text-white/60"
             >
-              <span>← Back to Website</span>
+              <span>&larr; Back to Website</span>
             </Link>
           )}
         </div>

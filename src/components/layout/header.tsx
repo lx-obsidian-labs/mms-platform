@@ -33,7 +33,13 @@ export function Header() {
         </nav>
 
         {/* Desktop CTA */}
-        <div className="hidden lg:block">
+        <div className="hidden items-center gap-3 lg:flex">
+          <Link
+            href="/login"
+            className="inline-flex h-10 items-center rounded-lg border border-gold/30 px-5 text-sm font-medium text-gold transition-all hover:border-gold/60 hover:bg-gold/10"
+          >
+            Login
+          </Link>
           <Link
             href="/apply"
             className="inline-flex h-10 items-center rounded-lg bg-gold px-5 text-sm font-semibold text-industrial-black transition-all hover:bg-gold-light hover:shadow-[0_0_20px_rgba(217,164,0,0.3)]"
@@ -72,13 +78,22 @@ export function Header() {
               {link.label}
             </Link>
           ))}
-          <Link
-            href="/apply"
-            className="mt-3 inline-flex h-12 items-center justify-center rounded-lg bg-gold text-base font-semibold text-industrial-black transition-all hover:bg-gold-light"
-            onClick={() => setMobileOpen(false)}
-          >
-            Enroll Now
-          </Link>
+          <div className="mt-3 flex flex-col gap-2">
+            <Link
+              href="/login"
+              className="inline-flex h-12 items-center justify-center rounded-lg border border-gold/30 text-base font-medium text-gold transition-all hover:border-gold/60 hover:bg-gold/10"
+              onClick={() => setMobileOpen(false)}
+            >
+              Login
+            </Link>
+            <Link
+              href="/apply"
+              className="inline-flex h-12 items-center justify-center rounded-lg bg-gold text-base font-semibold text-industrial-black transition-all hover:bg-gold-light"
+              onClick={() => setMobileOpen(false)}
+            >
+              Enroll Now
+            </Link>
+          </div>
         </nav>
       </div>
     </header>

@@ -24,6 +24,7 @@ export const NAV_LINKS = [
   { label: "Apply", href: "/apply" },
   { label: "Contact", href: "/contact" },
   { label: "Support", href: "/support" },
+  { label: "Student Portal", href: "/portal" },
 ] as const;
 
 // ============================================

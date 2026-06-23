@@ -2,20 +2,16 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
 import { motion } from "framer-motion";
-import { Loader2, LogIn, UserPlus, ArrowRight, Shield } from "lucide-react";
-import { signInWithPassword, signUp } from "@/lib/actions";
-import { cn } from "@/lib/utils";
+import { Loader2, LogIn, Mail, CheckCircle } from "lucide-react";
+import { signInWithPassword, requestLoginDetails } from "@/lib/actions";
 
-type AuthMode = "login" | "register";
+type View = "login" | "request";
 
 export function AuthForm() {
-  const [mode, setMode] = useState<AuthMode>("login");
+  const [view, setView] = useState<View>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -23,87 +19,103 @@ export function AuthForm() {
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "/";
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError("");
-    setSuccess("");
 
-    if (mode === "login") {
-      const result = await signInWithPassword(email, password);
-      if (result.success) {
-        router.push(redirect);
-        router.refresh();
-      } else {
-        setError(result.error || "Login failed");
-      }
+    const result = await signInWithPassword(email, password);
+    if (result.success) {
+      router.push(redirect);
+      router.refresh();
     } else {
-      if (!firstName || !lastName) {
-        setError("First and last name are required");
-        setLoading(false);
-        return;
-      }
-      const result = await signUp(email, password, firstName, lastName);
-      if (result.success) {
-        setSuccess("Account created! Check your email to verify, or sign in now.");
-        setMode("login");
-      } else {
-        setError(result.error || "Registration failed");
-      }
+      setError(result.error || "Login failed");
     }
 
     setLoading(false);
   }
 
+  async function handleRequest(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    setSuccess("");
+
+    const result = await requestLoginDetails(email);
+    if (result.success) {
+      setSuccess("If an account exists with this email, login instructions have been sent.");
+    } else {
+      setError(result.error || "Request failed. Please try again.");
+    }
+
+    setLoading(false);
+  }
+
+  if (view === "request") {
+    return (
+      <div className="w-full max-w-md">
+        <div className="mb-6 text-center">
+          <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-gold/10">
+            <Mail className="size-6 text-gold" />
+          </div>
+          <h2 className="font-heading text-lg font-bold text-off-white">Request Login Details</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Enter the email address you used during enrollment. We'll send you instructions to access your account.
+          </p>
+        </div>
+
+        <form onSubmit={handleRequest} className="space-y-4">
+          <Input label="Email" type="email" value={email} onChange={setEmail} placeholder="you@example.com" required />
+
+          {error && (
+            <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+              {error}
+            </motion.div>
+          )}
+
+          {success && (
+            <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="rounded-lg border border-green-500/20 bg-green-500/10 px-4 py-3 text-sm text-green-400 flex items-start gap-2">
+              <CheckCircle className="mt-0.5 size-4 shrink-0" />
+              <span>{success}</span>
+            </motion.div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-gold px-6 py-3 text-sm font-bold text-black transition-all hover:bg-gold/90 disabled:opacity-50"
+          >
+            {loading ? <Loader2 className="size-4 animate-spin" /> : "Send Instructions"}
+          </button>
+        </form>
+
+        <p className="mt-6 text-center">
+          <button onClick={() => { setView("login"); setError(""); setSuccess(""); }} className="text-sm text-gold hover:underline">
+            Back to Sign In
+          </button>
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full max-w-md">
-      {/* Mode Tabs */}
-      <div className="mb-8 flex rounded-lg bg-surface p-1">
-        {(["login", "register"] as AuthMode[]).map((m) => (
-          <button
-            key={m}
-            onClick={() => { setMode(m); setError(""); setSuccess(""); }}
-            className={cn(
-              "flex-1 rounded-md py-2.5 text-sm font-semibold capitalize transition-colors",
-              mode === m
-                ? "bg-gold text-black"
-                : "text-muted-foreground hover:text-off-white"
-            )}
-          >
-            {m === "login" ? "Sign In" : "Register"}
-          </button>
-        ))}
-      </div>
-
-      {/* Form */}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {mode === "register" && (
-          <div className="grid grid-cols-2 gap-3">
-            <Input label="First Name" value={firstName} onChange={setFirstName} placeholder="John" required />
-            <Input label="Last Name" value={lastName} onChange={setLastName} placeholder="Doe" required />
-          </div>
-        )}
-
+      <form onSubmit={handleLogin} className="space-y-4">
         <Input label="Email" type="email" value={email} onChange={setEmail} placeholder="you@example.com" required />
-        <Input label="Password" type="password" value={password} onChange={setPassword} placeholder="••••••••" required minLength={6} />
+        <div>
+          <Input label="Password" type="password" value={password} onChange={setPassword} placeholder="••••••••" required />
+          <button
+            type="button"
+            onClick={() => setView("request")}
+            className="mt-1 text-xs text-muted-foreground hover:text-gold"
+          >
+            Forgot your password?
+          </button>
+        </div>
 
         {error && (
-          <motion.div
-            initial={{ opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400"
-          >
+          <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
             {error}
-          </motion.div>
-        )}
-
-        {success && (
-          <motion.div
-            initial={{ opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="rounded-lg border border-green-500/20 bg-green-500/10 px-4 py-3 text-sm text-green-400"
-          >
-            {success}
           </motion.div>
         )}
 
@@ -112,41 +124,24 @@ export function AuthForm() {
           disabled={loading}
           className="flex w-full items-center justify-center gap-2 rounded-lg bg-gold px-6 py-3 text-sm font-bold text-black transition-all hover:bg-gold/90 disabled:opacity-50"
         >
-          {loading ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : mode === "login" ? (
-            <>
-              <LogIn className="size-4" />
-              Sign In
-            </>
-          ) : (
-            <>
-              <UserPlus className="size-4" />
-              Create Account
-            </>
-          )}
+          {loading ? <Loader2 className="size-4 animate-spin" /> : <><LogIn className="size-4" /> Sign In</>}
         </button>
       </form>
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
-        {mode === "login" ? "Don't have an account? " : "Already have an account? "}
-        <button
-          onClick={() => { setMode(mode === "login" ? "register" : "login"); setError(""); setSuccess(""); }}
-          className="font-semibold text-gold hover:underline"
-        >
-          {mode === "login" ? "Register here" : "Sign in"}
-        </button>
+        New student?{" "}
+        <a href="/apply" className="font-semibold text-gold hover:underline">Apply here</a>
+        {" — "}your login credentials will be sent to you upon enrollment.
       </p>
 
-      <div className="mt-6">
-        <Link
-          href="/"
-          className="flex items-center justify-center gap-1 text-sm text-muted-foreground transition-colors hover:text-gold"
+      <p className="mt-4 text-center">
+        <button
+          onClick={() => setView("request")}
+          className="text-xs text-muted-foreground hover:text-gold"
         >
-          <ArrowRight className="size-3 rotate-180" />
-          Back to Home
-        </Link>
-      </div>
+          Returning student? Request your login details
+        </button>
+      </p>
     </div>
   );
 }
@@ -162,7 +157,6 @@ function Input({
   type = "text",
   placeholder,
   required,
-  minLength,
 }: {
   label: string;
   value: string;
@@ -170,7 +164,6 @@ function Input({
   type?: string;
   placeholder?: string;
   required?: boolean;
-  minLength?: number;
 }) {
   return (
     <div>
@@ -181,7 +174,6 @@ function Input({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         required={required}
-        minLength={minLength}
         className="w-full rounded-lg border border-white/10 bg-surface px-4 py-3 text-sm text-off-white placeholder:text-white/20 focus:border-gold/50 focus:outline-none focus:ring-1 focus:ring-gold/30"
       />
     </div>

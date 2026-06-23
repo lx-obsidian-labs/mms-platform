@@ -325,6 +325,28 @@ export async function signOut() {
   await supabase.auth.signOut();
 }
 
+export async function requestLoginDetails(email: string) {
+  try {
+    const supabase = await createClient();
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("first_name")
+      .eq("email", email)
+      .maybeSingle();
+
+    if (profile) {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/login`,
+      });
+      if (error) return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  } catch {
+    return { success: true };
+  }
+}
+
 // ============================================
 // ADMIN ACTIONS
 // ============================================

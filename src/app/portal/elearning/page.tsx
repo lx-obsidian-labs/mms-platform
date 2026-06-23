@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import {
-  BookOpen, Award, Play, CheckCircle, Clock, GraduationCap, ArrowRight,
+  BookOpen, Award, Play, CheckCircle, GraduationCap, ArrowRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -29,9 +29,45 @@ export default async function ELearningPage() {
 
   const active = enrollments?.filter((e) => e.status === "active") ?? [];
   const completed = enrollments?.filter((e) => e.status === "completed") ?? [];
-  const totalLessons = enrollments?.length ?? 0;
-  const completedLessons = completed.length + active.filter((e) => (e.progress_percentage ?? 0) >= 100).length;
-  const overallProgress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+  const totalEnrolled = enrollments?.length ?? 0;
+  const finishedCount = completed.length + active.filter((e) => (e.progress_percentage ?? 0) >= 100).length;
+  const overallProgress = totalEnrolled > 0 ? Math.round((finishedCount / totalEnrolled) * 100) : 0;
+
+  // Fetch first video lesson for each active course
+  let courseVideos: Array<{ courseSlug: string; courseTitle: string; lessonId: string; lessonTitle: string; contentUrl: string; duration: number }> = [];
+  if (active.length > 0) {
+    const courseIds = active.map((e) => (e.courses as unknown as { id: string }).id);
+    const { data: firstVideos } = await supabase
+      .from("lessons")
+      .select("id, title, content_url, duration_minutes, course_id, order_index")
+      .in("course_id", courseIds)
+      .eq("lesson_type", "video")
+      .eq("is_published", true)
+      .order("order_index");
+
+    // Deduplicate: keep first video per course
+    const seen = new Set<string>();
+    const deduped = (firstVideos ?? []).filter((v) => {
+      if (seen.has(v.course_id)) return false;
+      seen.add(v.course_id);
+      return true;
+    });
+
+    courseVideos = deduped
+      .filter((v) => v.content_url)
+      .map((v) => {
+        const enrollment = active.find((e) => (e.courses as unknown as { id: string }).id === v.course_id);
+        const course = enrollment?.courses as unknown as { slug: string; title: string } | undefined;
+        return {
+          courseSlug: course?.slug ?? "",
+          courseTitle: course?.title ?? "",
+          lessonId: v.id,
+          lessonTitle: v.title,
+          contentUrl: v.content_url!,
+          duration: v.duration_minutes,
+        };
+      });
+  }
 
   return (
     <div className="space-y-8">
@@ -62,6 +98,39 @@ export default async function ELearningPage() {
             </div>
           ))}
         </div>
+      )}
+
+      {/* Course Videos Section */}
+      {courseVideos.length > 0 && (
+        <section>
+          <h2 className="mb-4 font-heading font-bold text-off-white flex items-center gap-2">
+            <Play className="size-4 text-gold" /> Course Videos
+          </h2>
+          <div className="grid gap-6 sm:grid-cols-2">
+            {courseVideos.map((video) => (
+              <div key={video.lessonId} className="overflow-hidden rounded-xl border border-white/5 bg-surface">
+                <div className="aspect-video bg-industrial-black">
+                  <video controls className="size-full" poster={`${video.contentUrl}/poster.jpg`}>
+                    <source src={video.contentUrl} type="video/mp4" />
+                  </video>
+                </div>
+                <div className="p-4">
+                  <Link href={`/portal/courses/${video.courseSlug}/lessons/${video.lessonId}`}
+                    className="font-heading font-bold text-off-white transition-colors hover:text-gold">
+                    {video.lessonTitle}
+                  </Link>
+                  <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
+                    <Link href={`/portal/courses/${video.courseSlug}`} className="hover:text-gold transition-colors">
+                      {video.courseTitle}
+                    </Link>
+                    <span>&middot;</span>
+                    <span>{video.duration} min</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
       )}
 
       {/* Active Courses */}

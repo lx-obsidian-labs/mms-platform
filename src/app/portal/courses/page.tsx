@@ -108,6 +108,14 @@ export default async function PortalCoursesPage() {
                     </span>
                     <ChevronRight size={14} />
                   </Link>
+                  <a
+                    href={`/api/enrollments/${enrollment.id}/proof-of-registration`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 flex items-center justify-center gap-1 rounded-lg border border-white/5 px-3 py-1.5 text-[10px] text-muted-foreground transition-colors hover:border-gold/20 hover:text-gold"
+                  >
+                    Proof of Registration
+                  </a>
                 </div>
               </div>
             );

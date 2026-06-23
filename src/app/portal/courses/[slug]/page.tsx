@@ -100,12 +100,21 @@ export default async function CourseLearningPage({ params }: Props) {
             <BookOpen size={12} /> {lessons?.length ?? 0} lessons
           </span>
         </div>
-        {/* Progress bar */}
-        <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-industrial-black">
-          <div
-            className="h-full rounded-full bg-gold transition-all"
-            style={{ width: `${enrollment.progress_percentage}%` }}
-          />
+        <div className="mt-3 flex items-center justify-between">
+          <div className="h-2 flex-1 overflow-hidden rounded-full bg-industrial-black">
+            <div
+              className="h-full rounded-full bg-gold transition-all"
+              style={{ width: `${enrollment.progress_percentage}%` }}
+            />
+          </div>
+          <a
+            href={`/api/enrollments/${enrollment.id}/proof-of-registration`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ml-4 shrink-0 text-[10px] text-muted-foreground underline-offset-2 hover:text-gold hover:underline"
+          >
+            Proof of Registration
+          </a>
         </div>
       </div>
 

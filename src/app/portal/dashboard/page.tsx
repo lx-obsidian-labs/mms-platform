@@ -239,8 +239,19 @@ export default async function DashboardPage() {
                             />
                           </div>
                         </div>
-                        <div className="mt-3 flex items-center gap-1 text-xs font-medium text-gold">
-                          Continue <ArrowRight size={12} />
+                        <div className="mt-3 flex items-center justify-between">
+                          <div className="flex items-center gap-1 text-xs font-medium text-gold">
+                            Continue <ArrowRight size={12} />
+                          </div>
+                          <a
+                            href={`/api/enrollments/${enrollment.id}/proof-of-registration`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="text-[10px] text-muted-foreground underline-offset-2 hover:text-gold hover:underline"
+                          >
+                            Proof of Registration
+                          </a>
                         </div>
                       </div>
                     </Link>

@@ -6,12 +6,15 @@
 CREATE TYPE email_event_type AS ENUM (
   'email.sent',
   'email.delivered',
-  'email.delayed',
-  'email.complained',
+  'email.delivery_delayed',
   'email.bounced',
+  'email.complained',
   'email.opened',
   'email.clicked',
-  'email.authenticated'
+  'email.failed',
+  'email.received',
+  'email.scheduled',
+  'email.suppressed'
 );
 
 CREATE TABLE email_webhook_events (

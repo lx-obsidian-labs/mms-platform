@@ -50,20 +50,20 @@ export async function POST(request: NextRequest) {
       event_data: data,
     });
 
-    // For bounce/complaint, update email_logs status
-    if (type === "email.bounced" || type === "email.complained") {
-      const bounceStatus = type === "email.bounced" ? "bounced" : "complained";
+    // Update email_logs status based on event type
+    const statusMap: Record<string, string> = {
+      "email.delivered": "delivered",
+      "email.bounced": "bounced",
+      "email.complained": "complained",
+      "email.failed": "failed",
+      "email.suppressed": "suppressed",
+      "email.sent": "sent",
+    };
+    const logStatus = statusMap[type];
+    if (logStatus) {
       await supabase
         .from("email_logs")
-        .update({ status: bounceStatus })
-        .eq("provider_message_id", messageId);
-    }
-
-    // For delivery, mark email_logs as delivered
-    if (type === "email.delivered") {
-      await supabase
-        .from("email_logs")
-        .update({ status: "delivered" })
+        .update({ status: logStatus })
         .eq("provider_message_id", messageId);
     }
 
@@ -81,12 +81,15 @@ function mapEventType(type: string): string | null {
   const map: Record<string, string> = {
     "email.sent": "email.sent",
     "email.delivered": "email.delivered",
-    "email.delayed": "email.delayed",
-    "email.complained": "email.complained",
+    "email.delivery_delayed": "email.delivery_delayed",
     "email.bounced": "email.bounced",
+    "email.complained": "email.complained",
     "email.opened": "email.opened",
     "email.clicked": "email.clicked",
-    "email.authenticated": "email.authenticated",
+    "email.failed": "email.failed",
+    "email.received": "email.received",
+    "email.scheduled": "email.scheduled",
+    "email.suppressed": "email.suppressed",
   };
   return map[type] || null;
 }

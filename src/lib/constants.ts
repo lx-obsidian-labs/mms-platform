@@ -12,7 +12,8 @@ export const COMPANY = {
   email: "info@mpumalangaminingsolutions.co.za",
   phone: "+27 000 000 000",
   whatsapp: "+27 000 000 000",
-  registrationNumber: "",
+  registrationNumber: "2026/392264/07",
+  registeredName: "Mpumalanga Mining Solutions (Pty) Ltd",
   website: "https://mpumalangaminingsolutions.co.za",
 } as const;
 

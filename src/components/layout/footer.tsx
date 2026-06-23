@@ -121,10 +121,10 @@ export function Footer() {
         <div className="border-t border-white/5 py-6">
           <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
             <p className="text-xs text-muted-foreground">
-              &copy; {new Date().getFullYear()} {COMPANY.name}. All rights reserved.
+              &copy; {new Date().getFullYear()} {COMPANY.registeredName}. All rights reserved.
             </p>
             <p className="text-xs text-muted-foreground">
-              Registered Training Provider &mdash; South Africa
+              Enterprise No: {COMPANY.registrationNumber} &middot; Registered Training Provider &mdash; South Africa
             </p>
           </div>
         </div>

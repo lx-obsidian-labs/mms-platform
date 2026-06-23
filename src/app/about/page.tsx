@@ -176,35 +176,11 @@ export default function AboutPage() {
                   operations across South Africa, and our alumni network continues to grow as we
                   expand toward national recognition.
                 </p>
-              </div>
-            </div>
-          </Container>
-        </section>
-
-        {/* Leadership */}
-        <section className="bg-industrial-black py-[var(--section-padding)]">
-          <Container>
-            <SectionHeading
-              title="Leadership"
-              subtitle="Meet the team driving MMS toward national excellence."
-            />
-
-            <div className="mx-auto max-w-md">
-              <div className="rounded-xl border border-white/5 bg-surface p-8 text-center">
-                <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gold/10">
-                  <Users size={32} className="text-gold" />
+                <div className="mt-8 rounded-lg border border-white/5 bg-industrial-black p-5 text-sm">
+                  <p className="text-off-white"><strong>Registered Company Name:</strong> {COMPANY.registeredName}</p>
+                  <p className="mt-1 text-off-white"><strong>Trading Name:</strong> {COMPANY.shortName}</p>
+                  <p className="mt-1 text-off-white"><strong>Enterprise Number:</strong> {COMPANY.registrationNumber}</p>
                 </div>
-                <h3 className="font-heading text-xl font-bold text-off-white">
-                  Mr SN Vilane
-                </h3>
-                <p className="mt-1 text-sm font-medium text-gold">
-                  Founder &amp; Lead Instructor
-                </p>
-                <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-                  With over a decade of experience in mining operations and machinery training,
-                  Mr Vilane leads MMS with a commitment to student success, safety excellence,
-                  and operational integrity.
-                </p>
               </div>
             </div>
           </Container>

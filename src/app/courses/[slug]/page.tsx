@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Clock, Award, Users, CheckCircle, BookOpen, HardHat, Calendar } from "lucide-react";
 import { Header } from "@/components/layout/header";
@@ -75,6 +76,20 @@ export default async function CoursePage({ params }: CoursePageProps) {
               <ArrowLeft size={14} />
               All Training Programs
             </Link>
+
+            <div className="mb-8 overflow-hidden rounded-xl">
+              <div className="relative h-52 sm:h-64 lg:h-80">
+                <Image
+                  src={course.image}
+                  alt={course.title}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 800px"
+                  priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/60 to-transparent" />
+              </div>
+            </div>
 
             <div className="grid gap-10 lg:grid-cols-[1fr_340px]">
               {/* Left - Course Info */}
@@ -253,15 +268,27 @@ export default async function CoursePage({ params }: CoursePageProps) {
                   <Link
                     key={rc.id}
                     href={`/courses/${rc.slug}`}
-                    className="group rounded-xl border border-white/5 bg-industrial-black p-5 transition-all hover:border-gold/15"
+                    className="group rounded-xl border border-white/5 bg-industrial-black transition-all hover:border-gold/15 overflow-hidden"
                   >
-                    <h3 className="font-heading text-base font-bold text-off-white group-hover:text-gold transition-colors">
-                      {rc.title}
-                    </h3>
-                    <p className="mt-2 text-sm text-muted-foreground">{rc.shortDescription}</p>
-                    <p className="mt-3 text-sm font-bold text-gold">
-                      {formatCurrency(rc.price)} &middot; {rc.durationWeeks} weeks
-                    </p>
+                    <div className="relative h-36 overflow-hidden">
+                      <Image
+                        src={rc.image}
+                        alt={rc.title}
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        sizes="(max-width: 640px) 100vw, 33vw"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-industrial-black via-transparent to-transparent" />
+                    </div>
+                    <div className="p-5">
+                      <h3 className="font-heading text-base font-bold text-off-white group-hover:text-gold transition-colors">
+                        {rc.title}
+                      </h3>
+                      <p className="mt-2 text-sm text-muted-foreground">{rc.shortDescription}</p>
+                      <p className="mt-3 text-sm font-bold text-gold">
+                        {formatCurrency(rc.price)} &middot; {rc.durationWeeks} weeks
+                      </p>
+                    </div>
                   </Link>
                 ))}
               </div>

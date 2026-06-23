@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion, type Variants } from "framer-motion";
 import { Truck, Shield, Mountain, Layers, ArrowRight, Clock, Award, HeartPulse } from "lucide-react";
 import { FEATURED_COURSES } from "@/lib/constants";
@@ -59,13 +60,21 @@ export function FeaturedCoursesSection() {
                   "hover:shadow-[0_8px_40px_rgba(217,164,0,0.06)]"
                 )}
               >
-                {/* Header */}
-                <div className="mb-4 flex items-start justify-between">
-                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-gold/10 text-gold">
-                    {Icon && <Icon size={24} />}
+                {/* Image */}
+                <div className="relative mb-5 h-44 overflow-hidden rounded-lg">
+                  <Image
+                    src={course.image}
+                    alt={course.title}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    sizes="(max-width: 640px) 100vw, 50vw"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-transparent to-transparent" />
+                  <div className="absolute bottom-3 left-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-gold/90 text-black shadow-lg">
+                    {Icon && <Icon size={20} />}
                   </div>
                   {course.certification && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-gold/10 px-3 py-1 text-xs font-medium text-gold">
+                    <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-black/70 px-3 py-1 text-xs font-medium text-gold backdrop-blur-sm">
                       <Award size={12} />
                       Certified
                     </span>

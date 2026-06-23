@@ -2,6 +2,7 @@
 
 import { useState, Suspense, useTransition, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
+import Image from "next/image";
 import { CheckCircle, ChevronLeft, ChevronRight, Upload, FileText, Loader2, X } from "lucide-react";
 import { submitApplication, uploadApplicationFile } from "@/lib/actions";
 import {
@@ -313,21 +314,33 @@ function EnrollmentFormInner() {
                 type="button"
                 onClick={() => update("course", c.slug)}
                 className={cn(
-                  "rounded-lg border p-4 text-left transition-all",
+                  "group rounded-lg border overflow-hidden text-left transition-all",
                   data.course === c.slug
                     ? "border-gold bg-gold/5"
                     : "border-white/5 hover:border-gold/20"
                 )}
               >
-                <p className={cn("font-heading text-sm font-bold", data.course === c.slug ? "text-gold" : "text-off-white")}>
-                  {c.title}
-                </p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {c.durationWeeks} weeks &middot; R{c.price.toLocaleString()}
-                </p>
+                <div className="relative h-28 overflow-hidden">
+                  <Image
+                    src={c.image}
+                    alt={c.title}
+                    fill
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                    sizes="(max-width: 640px) 100vw, 50vw"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-transparent to-transparent" />
+                </div>
+                <div className="p-3">
+                  <p className={cn("font-heading text-sm font-bold", data.course === c.slug ? "text-gold" : "text-off-white")}>
+                    {c.title}
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {c.durationWeeks} weeks &middot; R{c.price.toLocaleString()}
+                  </p>
+                </div>
               </button>
             ))}
-            {errors.course && <p className="text-sm text-red-400">{errors.course}</p>}
+            {errors.course && <p className="text-sm text-red-400 sm:col-span-2">{errors.course}</p>}
           </div>
         )}
 

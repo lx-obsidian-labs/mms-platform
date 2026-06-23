@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Truck, Shield, Mountain, Layers, ArrowRight, Clock, Award, HeartPulse, Flame, ChevronRight } from "lucide-react";
 import type { Course } from "@/lib/constants";
 import { cn, formatCurrency } from "@/lib/utils";
@@ -65,13 +66,21 @@ export function CoursesGrid({ courses, categories }: CoursesGridProps) {
                 "hover:shadow-[0_8px_40px_rgba(217,164,0,0.06)]"
               )}
             >
-              {/* Header */}
-              <div className="mb-4 flex items-start justify-between">
-                <div className="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-gold/10 text-gold">
-                  <Icon size={22} />
+              {/* Image */}
+              <div className="relative mb-4 h-40 overflow-hidden rounded-lg">
+                <Image
+                  src={course.image}
+                  alt={course.title}
+                  fill
+                  className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A] via-transparent to-transparent" />
+                <div className="absolute bottom-2.5 left-2.5 inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gold/90 text-black shadow-lg">
+                  <Icon size={18} />
                 </div>
                 {course.certification && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-gold/10 px-2.5 py-0.5 text-xs font-medium text-gold">
+                  <span className="absolute right-2.5 top-2.5 inline-flex items-center gap-1 rounded-full bg-black/70 px-2.5 py-0.5 text-[11px] font-medium text-gold backdrop-blur-sm">
                     <Award size={10} />
                     Certified
                   </span>

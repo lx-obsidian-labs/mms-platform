@@ -28,7 +28,7 @@ export default async function VerifyCertificatePage(props: { searchParams: Promi
     const supabase = await createClient();
     const { data } = await supabase
       .from("certificates")
-      .select("certificate_number, issued_at, status, enrollments!inner(courses(title), students!inner(profiles!inner(first_name, last_name)))")
+      .select("certificate_number, issued_at, status, enrollments(courses(title), students(profiles(first_name, last_name)))")
       .eq("certificate_number", code)
       .single();
 

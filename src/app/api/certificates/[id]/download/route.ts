@@ -10,7 +10,7 @@ export async function GET(_request: NextRequest, { params }: Props) {
 
   const { data: cert } = await supabase
     .from("certificates")
-    .select("*, enrollments!inner(courses!inner(title, category, duration_weeks, duration_hours), students!inner(profiles!inner(first_name, last_name)))")
+    .select("*, enrollments(courses(title, category, duration_weeks, duration_hours), students(profiles(first_name, last_name)))")
     .eq("id", id)
     .single();
 

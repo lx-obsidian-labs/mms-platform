@@ -45,3 +45,20 @@ Thumbs.db
 # PDF text extracts (root folder)
 *.txt
 !README.txt
+.codersinflow
+.vscode
+node_modules
+.venv
+.codex
+out
+dist
+*.vsix
+.claude
+CLAUDE.md
+.git
+*.log
+*.tmp
+__pycache__
+*.pyc
+.next
+.github

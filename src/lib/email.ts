@@ -6,7 +6,13 @@
 import { Resend } from "resend";
 import { COMPANY } from "@/lib/constants";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getResend() {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw new Error("RESEND_API_KEY environment variable is not set");
+  }
+  return new Resend(apiKey);
+}
 
 const FROM_EMAIL = "Mpumalanga Mining Solutions <noreply@mpumalangaminingsolutions.co.za>";
 
@@ -512,6 +518,7 @@ export async function sendInstructorNotification(params: {
 
 async function sendEmail(params: { to: string; subject: string; html: string }) {
   try {
+    const resend = getResend();
     const { data, error } = await resend.emails.send({
       from: FROM_EMAIL,
       to: params.to,

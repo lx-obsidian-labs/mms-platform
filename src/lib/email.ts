@@ -7,7 +7,7 @@ function getResend() {
   return new Resend(apiKey);
 }
 
-const FROM_EMAIL = "Mpumalanga Mining Solutions <noreply@mpumalangaminingsolutions.co.za>";
+const FROM_EMAIL = "Mpumalanga Mining Solutions <noreply@mpumalangaminingsolutions.com>";
 
 const GOLD = "#D9A400";
 const GOLD_DARK = "#B88D00";

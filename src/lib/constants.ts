@@ -9,12 +9,12 @@ export const COMPANY = {
   description:
     "South Africa's premier mining and heavy machinery training institution. We provide industry-recognized certification, hands-on practical training, and expert-led courses for the mining and industrial sector.",
   location: "Middelburg, Mpumalanga, South Africa",
-  email: "info@mpumalangaminingsolutions.co.za",
+  email: "info@mpumalangaminingsolutions.com",
   phone: "+27 000 000 000",
   whatsapp: "+27 000 000 000",
   registrationNumber: "2026/392264/07",
   registeredName: "Mpumalanga Mining Solutions (Pty) Ltd",
-  website: "https://mpumalangaminingsolutions.co.za",
+  website: "https://mpumalangaminingsolutions.com",
 } as const;
 
 export const NAV_LINKS = [

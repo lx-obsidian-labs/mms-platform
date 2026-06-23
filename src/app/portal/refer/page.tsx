@@ -23,7 +23,7 @@ export default async function ReferPage() {
     .single();
 
   const referralLink = `${
-    process.env.NEXT_PUBLIC_SITE_URL || "https://mpumalangaminingsolutions.co.za"
+    process.env.NEXT_PUBLIC_SITE_URL || "https://mpumalangaminingsolutions.com"
   }/apply?ref=${profile?.first_name?.toLowerCase() ?? "student"}-${Date.now()}`;
 
   return (

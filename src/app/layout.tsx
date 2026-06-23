@@ -27,7 +27,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL || "https://mpumalangaminingsolutions.co.za"
+    process.env.NEXT_PUBLIC_APP_URL || "https://mpumalangaminingsolutions.com"
   ),
   title: {
     template: `%s | ${COMPANY.name}`,
@@ -57,7 +57,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_ZA",
-    url: process.env.NEXT_PUBLIC_APP_URL || "https://mpumalangaminingsolutions.co.za",
+    url: process.env.NEXT_PUBLIC_APP_URL || "https://mpumalangaminingsolutions.com",
     siteName: COMPANY.name,
     title: COMPANY.name,
     description: COMPANY.description,
@@ -69,7 +69,7 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical:
-      process.env.NEXT_PUBLIC_APP_URL || "https://mpumalangaminingsolutions.co.za",
+      process.env.NEXT_PUBLIC_APP_URL || "https://mpumalangaminingsolutions.com",
   },
   category: "Education",
 };

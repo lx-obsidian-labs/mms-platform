@@ -454,7 +454,7 @@ export async function updateApplicationStatus(
       firstName: application.first_name,
       lastName: application.last_name,
       courseName: course.title,
-      portalUrl: `${process.env.NEXT_PUBLIC_APP_URL ?? "https://mpumalangaminingsolutions.co.za"}/portal`,
+      portalUrl: `${process.env.NEXT_PUBLIC_APP_URL ?? "https://mpumalangaminingsolutions.com"}/portal`,
       email: application.email,
       password: "Use your existing password",
     });
@@ -753,7 +753,7 @@ function generateFallbackResponse(message: string): string {
   if (lower.includes("course") || lower.includes("train") || lower.includes("program")) {
     return `We offer **17 training programs** including Forklift, Excavator, Dump Truck 777D, Mobile Crane, and more. 
 
-Visit our **Courses page** to see the full list: https://mpumalangaminingsolutions.co.za/courses
+Visit our **Courses page** to see the full list: https://mpumalangaminingsolutions.com/courses
 
 Or contact us for personalized advice.`;
   }
@@ -763,7 +763,7 @@ Or contact us for personalized advice.`;
 
 For exact pricing and payment plan options, please visit the course page or contact our admissions team:
 
-📧 info@mpumalangaminingsolutions.co.za
+📧 info@mpumalangaminingsolutions.com
 📞 +27 000 000 000`;
   }
 
@@ -775,14 +775,14 @@ For exact pricing and payment plan options, please visit the course page or cont
 3. Complete the online application form
 4. Our team will review and contact you within 48 hours
 
-Start your application here: https://mpumalangaminingsolutions.co.za/apply`;
+Start your application here: https://mpumalangaminingsolutions.com/apply`;
   }
 
   if (lower.includes("location") || lower.includes("address") || lower.includes("where") || lower.includes("middelburg")) {
     return `We are located in **Middelburg, Mpumalanga**, South Africa.
 
 📍 Middelburg, Mpumalanga
-📧 info@mpumalangaminingsolutions.co.za
+📧 info@mpumalangaminingsolutions.com
 📞 +27 000 000 000`;
   }
 
@@ -801,8 +801,8 @@ What would you like to know?`;
   return `Thanks for your question! I'm here to help with information about our training programs, enrollment, and more.
 
 For specific queries, you can also:
-• Browse our **Courses**: https://mpumalangaminingsolutions.co.za/courses
-• **Contact us**: info@mpumalangaminingsolutions.co.za
+• Browse our **Courses**: https://mpumalangaminingsolutions.com/courses
+• **Contact us**: info@mpumalangaminingsolutions.com
 • Call us: +27 000 000 000
 
 How else can I assist you?`;

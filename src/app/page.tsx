@@ -15,7 +15,7 @@ const organizationSchema = {
   "@type": "EducationalOrganization",
   name: COMPANY.name,
   description: COMPANY.description,
-  url: process.env.NEXT_PUBLIC_APP_URL || "https://mpumalangaminingsolutions.co.za",
+  url: process.env.NEXT_PUBLIC_APP_URL || "https://mpumalangaminingsolutions.com",
   email: COMPANY.email,
   telephone: COMPANY.phone,
   address: {

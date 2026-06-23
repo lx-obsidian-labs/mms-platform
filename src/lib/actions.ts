@@ -97,6 +97,7 @@ export interface EnrollmentFormData {
   emergencyRelationship: string;
   emergencyAltPhone: string;
   trainingType: string;
+  referralCode: string;
   preferredIntakeDate: string;
   motivation: string;
   consentGiven: boolean;
@@ -188,6 +189,7 @@ export async function submitApplication(formData: EnrollmentFormData) {
         medical_fitness_url: null,
         consent_given: formData.consentGiven,
         consent_given_at: formData.consentGiven ? new Date().toISOString() : null,
+        referral_code: formData.referralCode || null,
         status: "submitted",
       })
       .select("id, reference_number")

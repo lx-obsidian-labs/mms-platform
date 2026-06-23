@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Award, Users, Star, TrendingUp, Bell, ArrowRight } from "lucide-react";
+import { Award, Users, Star, TrendingUp, Bell, ArrowRight, FileText, CheckCircle } from "lucide-react";
 import { COMPANY } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Refer & Earn",
@@ -22,15 +23,30 @@ export default async function ReferPage() {
     .eq("id", user.id)
     .single();
 
-  const cryptoRandom = () => {
-    // Use crypto.getRandomValues for stable rendering in React
-    const arr = new Uint32Array(1);
-    window.crypto.getRandomValues(arr);
-    return arr[0] % 1000000;
+  const { data: student } = await supabase
+    .from("students")
+    .select("id, referral_code")
+    .eq("user_id", user.id)
+    .single();
+
+  const referralLink = student?.referral_code
+    ? `${process.env.NEXT_PUBLIC_SITE_URL || "https://mpumalangaminingsolutions.com"}/apply?ref=${student.referral_code}`
+    : `${process.env.NEXT_PUBLIC_SITE_URL || "https://mpumalangaminingsolutions.com"}/apply`;
+
+  const { data: referrals } = await supabase
+    .from("referrals")
+    .select("*")
+    .eq("referrer_id", student?.id)
+    .order("created_at", { ascending: false });
+
+  const stats = {
+    total: referrals?.length ?? 0,
+    pending: referrals?.filter((r) => r.status === "pending").length ?? 0,
+    converted: referrals?.filter((r) => r.status === "converted").length ?? 0,
+    paid: referrals?.filter((r) => r.status === "paid").length ?? 0,
+    totalRewards: referrals?.filter((r) => r.status === "paid" || r.status === "converted").reduce((sum, r) => sum + (r.reward_amount ?? 0), 0) ?? 0,
+    pendingRewards: referrals?.filter((r) => r.status === "converted").reduce((sum, r) => sum + (r.reward_amount ?? 0), 0) ?? 0,
   };
-  const referralLink = `${
-    process.env.NEXT_PUBLIC_SITE_URL || "https://mpumalangaminingsolutions.com"
-  }/apply?ref=${profile?.first_name?.toLowerCase() ?? "student"}-${cryptoRandom()}`;
 
   return (
     <div className="space-y-8">
@@ -91,6 +107,24 @@ export default async function ReferPage() {
         </div>
       </div>
 
+      {/* Stats */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          { label: "Total Referrals", value: stats.total, icon: Users, color: "text-blue-400 bg-blue-500/10" },
+          { label: "Pending", value: stats.pending, icon: Bell, color: "text-amber-400 bg-amber-500/10" },
+          { label: "Converted", value: stats.converted, icon: CheckCircle, color: "text-green-400 bg-green-500/10" },
+          { label: "Rewards Earned", value: `R${stats.totalRewards.toLocaleString()}`, icon: Award, color: "text-gold bg-gold/10" },
+        ].map((stat) => (
+          <div key={stat.label} className="rounded-xl border border-white/5 bg-surface p-4">
+            <div className={cn("mb-2 inline-flex rounded-lg p-2", stat.color)}>
+              <stat.icon className="size-4" />
+            </div>
+            <p className="text-lg font-bold text-off-white">{stat.value}</p>
+            <p className="text-xs text-muted-foreground">{stat.label}</p>
+          </div>
+        ))}
+      </div>
+
       {/* Referral Link */}
       <div className="rounded-xl border border-white/5 bg-surface p-6">
         <h2 className="font-heading text-base font-bold text-off-white">Your Referral Link</h2>
@@ -105,11 +139,48 @@ export default async function ReferPage() {
             onClick={() => { navigator.clipboard.writeText(referralLink); }}
             className="flex shrink-0 items-center gap-1.5 rounded-lg bg-gold px-4 py-3 text-sm font-bold text-black transition-all hover:bg-gold-light"
           >
-            <Star size={14} />
+            <FileText size={14} />
             Copy
           </button>
         </div>
       </div>
+
+      {/* Referral History */}
+      {referrals && referrals.length > 0 && (
+        <div className="rounded-xl border border-white/5 bg-surface">
+          <div className="p-5 border-b border-white/5">
+            <h2 className="font-heading text-base font-bold text-off-white">Referral History</h2>
+          </div>
+          <div className="divide-y divide-white/5">
+            {referrals.map((r) => (
+              <div key={r.id} className="p-5 flex items-center justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-xs text-gold">{r.referral_code}</span>
+                    <span className={cn(
+                      "rounded-full px-2 py-0.5 text-[10px] font-medium",
+                      r.status === "pending" && "bg-amber-500/20 text-amber-400",
+                      r.status === "converted" && "bg-blue-500/20 text-blue-400",
+                      r.status === "paid" && "bg-green-500/20 text-green-400",
+                      r.status === "cancelled" && "bg-red-500/20 text-red-400",
+                    )}>
+                      {r.status}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground truncate">{r.referee_email ?? "Email not provided"}</p>
+                  <p className="text-[10px] text-muted-foreground">Created: {new Date(r.created_at).toLocaleDateString()}</p>
+                </div>
+                <div className="flex items-center gap-4 shrink-0">
+                  {r.reward_amount && (
+                    <span className="text-sm font-bold text-gold">R{r.reward_amount.toLocaleString()}</span>
+                  )}
+                  <span className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Contact */}
       <div className="rounded-xl border border-white/5 bg-surface p-6 text-center">

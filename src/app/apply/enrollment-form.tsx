@@ -47,6 +47,7 @@ interface FormData {
   emergencyAltPhone: string;
   preferredIntakeDate: string;
   trainingType: string;
+  referralCode: string;
   idCopy: string;
   idCopyFile: File | null;
   proofOfAddress: string;
@@ -82,6 +83,7 @@ const initialData: FormData = {
   emergencyAltPhone: "",
   preferredIntakeDate: "",
   trainingType: "",
+  referralCode: "",
   idCopy: "",
   idCopyFile: null,
   proofOfAddress: "",
@@ -99,11 +101,13 @@ const initialData: FormData = {
 function EnrollmentFormInner() {
   const searchParams = useSearchParams();
   const preselectedCourse = searchParams.get("course") || "";
+  const referralCode = searchParams.get("ref") || "";
 
   const [step, setStep] = useState(0);
   const [data, setData] = useState<FormData>({
     ...initialData,
     course: preselectedCourse,
+    referralCode,
   });
   const [submitted, setSubmitted] = useState(false);
   const [referenceNumber, setReferenceNumber] = useState("");
@@ -194,6 +198,7 @@ function EnrollmentFormInner() {
             preferredIntakeDate: data.preferredIntakeDate,
             motivation: "",
             consentGiven: data.popiaConsent,
+            referralCode: data.referralCode,
           });
 
           if (result.success && result.referenceNumber) {

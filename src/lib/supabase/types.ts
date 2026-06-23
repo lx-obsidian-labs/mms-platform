@@ -91,6 +91,7 @@ export interface Application {
   reviewed_by: string | null;
   reviewed_at: string | null;
   notes: string | null;
+  referral_code: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -181,6 +182,27 @@ export interface Task {
   related_entity_type: string | null;
   related_entity_id: string | null;
   created_at: string;
+  updated_at: string;
+}
+
+export type ReferralStatus = "pending" | "converted" | "paid" | "cancelled";
+export type ReferralRewardType = "cash" | "discount" | "points";
+
+export interface Referral {
+  id: string;
+  referrer_id: string;
+  referee_email: string | null;
+  referee_student_id: string | null;
+  referral_code: string;
+  status: ReferralStatus;
+  reward_type: ReferralRewardType;
+  reward_amount: number | null;
+  reward_paid_at: string | null;
+  application_id: string | null;
+  enrolled_at: string | null;
+  converted_at: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 // Database schema type for Supabase generated types
@@ -198,6 +220,7 @@ export interface Database {
       payments: { Row: Payment; Insert: Omit<Payment, "created_at" | "updated_at">; Update: Partial<Payment> };
       audit_logs: { Row: AuditLog; Insert: Omit<AuditLog, "created_at">; Update: Partial<AuditLog> };
       tasks: { Row: Task; Insert: Omit<Task, "created_at">; Update: Partial<Task> };
+      referrals: { Row: Referral; Insert: Omit<Referral, "created_at" | "updated_at">; Update: Partial<Referral> };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

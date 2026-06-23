@@ -9,7 +9,7 @@ interface Message {
   content: string;
 }
 
-const WELCOME = "Hi! I'm the MMS AI assistant. Ask me anything about courses, enrollment, the portal, or your training.";
+const WELCOME = "Hi! I'm the MMS AI assistant. I can help you with course recommendations, learning paths, portal navigation, and personalized study assistance. What would you like to explore?";
 
 export function AiChatbot() {
   const [open, setOpen] = useState(false);
@@ -28,6 +28,22 @@ export function AiChatbot() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  useEffect(() => {
+    if (open && messages.length === 1) {
+      const welcomeMessage = "Welcome! I'm here to help you with your learning journey. I can:\n\n• 📚 Recommend courses based on your interests and goals\n• 🎯 Create personalized learning paths\n• 📊 Track your progress and suggest next steps\n• 💡 Provide study assistance for specific course concepts\n• 🎖️ Help with certificate requirements and career planning\n• 🔍 Answer questions about enrollment, fees, and policies\n\nWhat aspect of your training would you like to explore?";
+      
+      setTimeout(() => {
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: welcomeMessage,
+          },
+        ]);
+      }, 1000);
+    }
+  }, [open, messages.length]);
 
   async function handleSend(e: React.FormEvent) {
     e.preventDefault();

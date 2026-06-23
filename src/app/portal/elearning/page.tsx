@@ -23,7 +23,7 @@ export default async function ELearningPage() {
 
   const { data: enrollments } = await supabase
     .from("enrollments")
-    .select("*, courses!inner(id, title, slug, category, description, image_url)")
+    .select("*, courses!inner(id, title, slug, category, description, image_url, is_featured)")
     .eq("student_id", student?.id ?? "")
     .order("created_at", { ascending: false });
 
@@ -100,6 +100,39 @@ export default async function ELearningPage() {
         </div>
       )}
 
+      {/* Recommended Courses */}
+      {active.length > 0 && (
+        <section>
+          <h2 className="mb-4 font-heading font-bold text-off-white flex items-center gap-2">
+            <Award className="size-4 text-gold" /> Recommended for You
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {active.map((enrollment) => {
+              const course = enrollment.courses as unknown as { id: string; title: string; slug: string; category: string; description: string; image_url: string | null; is_featured: boolean };
+              // Show featured courses as recommended
+              if (!course.is_featured) return null;
+              const progress = enrollment.progress_percentage ?? 0;
+              return (
+                <Link key={enrollment.id} href={`/portal/courses/${course.slug}`}
+                  className="group rounded-xl border border-gold/20 bg-surface p-5 transition-all hover:border-gold/40 hover:bg-surface-light">
+                  <div className="mb-3 flex items-start justify-between">
+                    <h3 className="font-heading font-bold text-off-white group-hover:text-gold transition-colors">{course.title}</h3>
+                    <span className="whitespace-nowrap rounded-full bg-gold/10 px-2 py-0.5 text-[10px] font-medium text-gold">Featured</span>
+                  </div>
+                  <p className="mb-4 line-clamp-2 text-xs text-muted-foreground">{course.description}</p>
+                  <div className="flex items-center gap-3">
+                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">
+                      <div className="h-full rounded-full bg-gold transition-all" style={{ width: `${progress}%` }} />
+                    </div>
+                    <span className="text-xs font-medium text-gold">{progress}%</span>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
       {/* Course Videos Section */}
       {courseVideos.length > 0 && (
         <section>
@@ -141,7 +174,7 @@ export default async function ELearningPage() {
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {active.map((enrollment) => {
-              const course = enrollment.courses as unknown as { id: string; title: string; slug: string; category: string; description: string; image_url: string | null };
+              const course = enrollment.courses as unknown as { id: string; title: string; slug: string; category: string; description: string; image_url: string | null; is_featured: boolean };
               const progress = enrollment.progress_percentage ?? 0;
               return (
                 <Link key={enrollment.id} href={`/portal/courses/${course.slug}`}
@@ -172,7 +205,7 @@ export default async function ELearningPage() {
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {completed.map((enrollment) => {
-              const course = enrollment.courses as unknown as { id: string; title: string; slug: string; description: string };
+              const course = enrollment.courses as unknown as { id: string; title: string; slug: string; description: string; is_featured: boolean };
               return (
                 <Link key={enrollment.id} href={`/portal/courses/${course.slug}`}
                   className="rounded-xl border border-green-500/10 bg-surface p-5 transition-all hover:border-green-500/20">

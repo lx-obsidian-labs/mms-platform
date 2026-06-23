@@ -335,8 +335,16 @@ function EnrollmentFormInner() {
                     {c.title}
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {c.durationWeeks} weeks &middot; R{c.price.toLocaleString()}
+                    {c.durationWeeks} weeks
                   </p>
+                  <div className="mt-0.5 flex items-baseline gap-1">
+                    <span className="text-[10px] text-muted-foreground line-through">
+                      R{(c.price + 700).toLocaleString()}
+                    </span>
+                    <span className="text-xs font-semibold text-[#E53935]">
+                      R{c.price.toLocaleString()}
+                    </span>
+                  </div>
                 </div>
               </button>
             ))}

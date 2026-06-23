@@ -8,7 +8,7 @@ import { Footer } from "@/components/layout/footer";
 import { Container } from "@/components/shared/container";
 import { CtaSection } from "@/components/sections/cta";
 import { ALL_COURSES, COMPANY } from "@/lib/constants";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, getOriginalPrice } from "@/lib/utils";
 
 interface CoursePageProps {
   params: Promise<{ slug: string }>;
@@ -133,9 +133,18 @@ export default async function CoursePage({ params }: CoursePageProps) {
 
               {/* Right - Pricing Card */}
               <div className="rounded-xl border border-white/5 bg-industrial-black p-6 lg:p-8">
-                <p className="text-sm font-medium text-muted-foreground">Course Investment</p>
-                <p className="mt-2 font-display text-4xl text-gold">
+                <p className="text-xs font-medium text-muted-foreground">Limited-Time Offer</p>
+                <div className="mt-1 flex items-baseline gap-2">
+                  <span className="text-lg text-muted-foreground line-through">
+                    {formatCurrency(getOriginalPrice(course.price))}
+                  </span>
+                  <span className="text-xs text-muted-foreground">was</span>
+                </div>
+                <p className="font-display text-4xl text-[#E53935]">
                   {formatCurrency(course.price)}
+                </p>
+                <p className="mt-1 text-xs text-red-400/70">
+                  Save {formatCurrency(getOriginalPrice(course.price) - course.price)} — limited spots available
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
                   Payment plans available
@@ -285,9 +294,15 @@ export default async function CoursePage({ params }: CoursePageProps) {
                         {rc.title}
                       </h3>
                       <p className="mt-2 text-sm text-muted-foreground">{rc.shortDescription}</p>
-                      <p className="mt-3 text-sm font-bold text-gold">
-                        {formatCurrency(rc.price)} &middot; {rc.durationWeeks} weeks
-                      </p>
+                      <div className="mt-3 flex items-baseline gap-1.5">
+                        <span className="text-xs text-muted-foreground line-through">
+                          {formatCurrency(getOriginalPrice(rc.price))}
+                        </span>
+                        <span className="text-sm font-bold text-[#E53935]">
+                          {formatCurrency(rc.price)}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">{rc.durationWeeks} weeks</p>
                     </div>
                   </Link>
                 ))}

@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Truck, Shield, Mountain, Layers, ArrowRight, Clock, Award, HeartPulse, Flame, ChevronRight } from "lucide-react";
 import type { Course } from "@/lib/constants";
-import { cn, formatCurrency } from "@/lib/utils";
+import { cn, formatCurrency, getOriginalPrice } from "@/lib/utils";
 
 const iconMap: Record<string, React.ComponentType<{ size?: number }>> = {
   Truck, Shield, Mountain, Layers, HeartPulse,
@@ -79,6 +79,9 @@ export function CoursesGrid({ courses, categories }: CoursesGridProps) {
                 <div className="absolute bottom-2.5 left-2.5 inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gold/90 text-black shadow-lg">
                   <Icon size={18} />
                 </div>
+                <span className="absolute left-2.5 top-2.5 inline-flex items-center gap-1 rounded-full bg-[#E53935]/90 px-2 py-0.5 text-[10px] font-bold text-white uppercase backdrop-blur-sm">
+                  Sale
+                </span>
                 {course.certification && (
                   <span className="absolute right-2.5 top-2.5 inline-flex items-center gap-1 rounded-full bg-black/70 px-2.5 py-0.5 text-[11px] font-medium text-gold backdrop-blur-sm">
                     <Award size={10} />
@@ -111,9 +114,14 @@ export function CoursesGrid({ courses, categories }: CoursesGridProps) {
 
               {/* Footer */}
               <div className="flex items-center justify-between border-t border-white/5 pt-4">
-                <span className="font-heading text-lg font-bold text-gold">
-                  {formatCurrency(course.price)}
-                </span>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-sm text-muted-foreground line-through">
+                    {formatCurrency(getOriginalPrice(course.price))}
+                  </span>
+                  <span className="font-heading text-lg font-bold text-[#E53935]">
+                    {formatCurrency(course.price)}
+                  </span>
+                </div>
                 <span className="inline-flex items-center gap-1 text-xs font-medium text-off-white transition-colors group-hover:text-gold">
                   View Details
                   <ChevronRight size={14} className="transition-transform group-hover:translate-x-0.5" />

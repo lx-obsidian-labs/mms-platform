@@ -7,7 +7,7 @@ import { Truck, Shield, Mountain, Layers, ArrowRight, Clock, Award, HeartPulse }
 import { FEATURED_COURSES } from "@/lib/constants";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { Container } from "@/components/shared/container";
-import { cn, formatCurrency } from "@/lib/utils";
+import { cn, formatCurrency, getOriginalPrice } from "@/lib/utils";
 
 const iconMap: Record<string, React.ComponentType<{ size?: number }>> = {
   Truck,
@@ -73,6 +73,9 @@ export function FeaturedCoursesSection() {
                   <div className="absolute bottom-3 left-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-gold/90 text-black shadow-lg">
                     {Icon && <Icon size={20} />}
                   </div>
+                  <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-[#E53935]/90 px-2.5 py-1 text-[10px] font-bold text-white uppercase backdrop-blur-sm">
+                    Sale
+                  </span>
                   {course.certification && (
                     <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-black/70 px-3 py-1 text-xs font-medium text-gold backdrop-blur-sm">
                       <Award size={12} />
@@ -105,9 +108,14 @@ export function FeaturedCoursesSection() {
 
                 {/* Footer */}
                 <div className="flex items-center justify-between border-t border-white/5 pt-4">
-                  <p className="font-heading text-lg font-bold text-gold">
-                    {formatCurrency(course.price)}
-                  </p>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-sm text-muted-foreground line-through">
+                      {formatCurrency(getOriginalPrice(course.price))}
+                    </span>
+                    <span className="font-heading text-lg font-bold text-[#E53935]">
+                      {formatCurrency(course.price)}
+                    </span>
+                  </div>
                   <Link
                     href={`/courses/${course.slug}`}
                     className="inline-flex items-center gap-1 text-sm font-medium text-off-white transition-colors hover:text-gold"

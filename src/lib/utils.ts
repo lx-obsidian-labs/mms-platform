@@ -12,6 +12,12 @@ export function formatCurrency(amount: number, currency = "ZAR"): string {
   }).format(amount);
 }
 
+export const SALE_DISCOUNT = 700;
+
+export function getOriginalPrice(salePrice: number): number {
+  return salePrice + SALE_DISCOUNT;
+}
+
 export function formatDate(date: string | Date): string {
   return new Intl.DateTimeFormat("en-ZA", {
     year: "numeric",

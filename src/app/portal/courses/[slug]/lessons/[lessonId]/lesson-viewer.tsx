@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { markLessonComplete } from "@/lib/actions";
+import { QuizViewer } from "@/components/quiz-viewer";
+import { AssignmentUpload } from "@/components/assignment-upload";
 
 interface Lesson {
   id: string;
@@ -156,16 +158,13 @@ export function LessonViewer({
         </div>
       )}
 
-      {(lesson.lesson_type === "quiz" || lesson.lesson_type === "assignment" || lesson.lesson_type === "practical") && (
-        <div className="rounded-xl border border-white/5 bg-surface p-8 text-center">
-          <FileText className="mx-auto mb-3 size-10 text-gold/50" />
-          <h3 className="font-heading font-bold text-off-white">
-            {lesson.lesson_type === "quiz" ? "Quiz" : lesson.lesson_type === "assignment" ? "Assignment" : "Practical Assessment"}
-          </h3>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {lesson.description ?? "Complete this assessment to proceed."}
-          </p>
-        </div>
+      {lesson.lesson_type === "quiz" && (
+        <QuizViewer lessonId={lesson.id} enrollmentId={enrollmentId} />
+      )}
+
+      {(lesson.lesson_type === "assignment" || lesson.lesson_type === "practical") && (
+        <AssignmentUpload lessonId={lesson.id} enrollmentId={enrollmentId}
+          courseSlug={courseSlug} lessonTitle={lesson.title} isSubmitted={completed} />
       )}
 
       {/* Complete & Navigate */}

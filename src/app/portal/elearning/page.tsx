@@ -100,16 +100,79 @@ export default async function ELearningPage() {
         </div>
       )}
 
-      {/* Recommended Courses */}
+      {/* Learning Insights */}
+      {enrollments && enrollments.length > 0 && (
+        <div className="grid gap-4 md:grid-cols-3">
+          <div className="rounded-xl border border-white/5 bg-surface p-5">
+            <h3 className="font-heading font-bold text-off-white mb-3">Learning Insights</h3>
+            <div className="space-y-2 text-xs">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Courses Started:</span>
+                <span className="text-off-white font-medium">{enrollments.length}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Average Progress:</span>
+                <span className="text-gold font-medium">{overallProgress}%</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Completed Courses:</span>
+                <span className="text-green-400 font-medium">{completed.length}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Featured Courses:</span>
+                <span className="text-gold font-medium">{active.filter((e) => (e.courses as unknown as { is_featured: boolean }).is_featured).length}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-white/5 bg-surface p-5">
+            <h3 className="font-heading font-bold text-off-white mb-3">Quick Actions</h3>
+            <div className="space-y-2">
+              <Link href="/portal/courses" className="block rounded-lg bg-gold/10 px-3 py-2 text-xs text-gold transition-colors hover:bg-gold/20">
+                Browse All Courses
+              </Link>
+              <Link href="/portal/certificates" className="block rounded-lg bg-green-500/10 px-3 py-2 text-xs text-green-400 transition-colors hover:bg-green-500/20">
+                View Certificates
+              </Link>
+              <Link href="/portal/documents" className="block rounded-lg bg-blue-500/10 px-3 py-2 text-xs text-blue-400 transition-colors hover:bg-blue-500/20">
+                Download Documents
+              </Link>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-white/5 bg-surface p-5">
+            <h3 className="font-heading font-bold text-off-white mb-3">Next Steps</h3>
+            <div className="space-y-2 text-xs">
+              {active.length > 0 ? (
+                <div>
+                  <div className="text-muted-foreground mb-1">Continue Learning:</div>
+                  {active.slice(0, 2).map((enrollment) => {
+                    const course = enrollment.courses as unknown as { title: string; slug: string };
+                    return (
+                      <Link key={enrollment.id} href={`/portal/courses/${course.slug}`} className="block rounded-lg bg-white/5 px-3 py-2 text-off-white transition-colors hover:bg-white/10">
+                        {course.title}
+                      </Link>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-muted-foreground">Enroll in a course to get started!</div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Featured Courses */}
       {active.length > 0 && (
         <section>
           <h2 className="mb-4 font-heading font-bold text-off-white flex items-center gap-2">
-            <Award className="size-4 text-gold" /> Recommended for You
+            <Award className="size-4 text-gold" /> Featured Courses
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {active.map((enrollment) => {
               const course = enrollment.courses as unknown as { id: string; title: string; slug: string; category: string; description: string; image_url: string | null; is_featured: boolean };
-              // Show featured courses as recommended
+              // Show featured courses
               if (!course.is_featured) return null;
               const progress = enrollment.progress_percentage ?? 0;
               return (
@@ -120,6 +183,10 @@ export default async function ELearningPage() {
                     <span className="whitespace-nowrap rounded-full bg-gold/10 px-2 py-0.5 text-[10px] font-medium text-gold">Featured</span>
                   </div>
                   <p className="mb-4 line-clamp-2 text-xs text-muted-foreground">{course.description}</p>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-[10px] text-muted-foreground">Category:</span>
+                    <span className="text-[10px] text-gold">{course.category}</span>
+                  </div>
                   <div className="flex items-center gap-3">
                     <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">
                       <div className="h-full rounded-full bg-gold transition-all" style={{ width: `${progress}%` }} />
@@ -139,25 +206,32 @@ export default async function ELearningPage() {
           <h2 className="mb-4 font-heading font-bold text-off-white flex items-center gap-2">
             <Play className="size-4 text-gold" /> Course Videos
           </h2>
-          <div className="grid gap-6 sm:grid-cols-2">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {courseVideos.map((video) => (
-              <div key={video.lessonId} className="overflow-hidden rounded-xl border border-white/5 bg-surface">
-                <div className="aspect-video bg-industrial-black">
+              <div key={video.lessonId} className="group overflow-hidden rounded-xl border border-white/5 bg-surface transition-all hover:border-gold/20 hover:bg-surface-light">
+                <div className="aspect-video bg-industrial-black relative">
                   <video controls className="size-full" poster={`${video.contentUrl}/poster.jpg`}>
                     <source src={video.contentUrl} type="video/mp4" />
                   </video>
+                  <div className="absolute bottom-2 right-2 rounded-full bg-black/70 px-2 py-1 text-[10px] font-medium text-white">
+                    {video.duration} min
+                  </div>
                 </div>
                 <div className="p-4">
                   <Link href={`/portal/courses/${video.courseSlug}/lessons/${video.lessonId}`}
-                    className="font-heading font-bold text-off-white transition-colors hover:text-gold">
+                    className="font-heading font-bold text-off-white transition-colors hover:text-gold group-hover:text-gold">
                     {video.lessonTitle}
                   </Link>
                   <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
                     <Link href={`/portal/courses/${video.courseSlug}`} className="hover:text-gold transition-colors">
                       {video.courseTitle}
                     </Link>
-                    <span>&middot;</span>
-                    <span>{video.duration} min</span>
+                  </div>
+                  <div className="mt-2 flex items-center gap-1">
+                    <span className="text-[10px] text-muted-foreground">Lesson in</span>
+                    <Link href={`/portal/courses/${video.courseSlug}`} className="text-[10px] text-gold hover:underline">
+                      {video.courseTitle}
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -166,7 +240,38 @@ export default async function ELearningPage() {
         </section>
       )}
 
-      {/* Active Courses */}
+      {/* Continue Learning */}
+      {active.length > 0 && (
+        <section>
+          <h2 className="mb-4 font-heading font-bold text-off-white flex items-center gap-2">
+            <Play className="size-4 text-gold" /> Continue Learning
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {active.map((enrollment) => {
+              const course = enrollment.courses as unknown as { id: string; title: string; slug: string; category: string; description: string; image_url: string | null };
+              const progress = enrollment.progress_percentage ?? 0;
+              return (
+                <Link key={enrollment.id} href={`/portal/courses/${course.slug}`}
+                  className="group rounded-xl border border-white/5 bg-surface p-5 transition-all hover:border-gold/20 hover:bg-surface-light">
+                  <div className="mb-3 flex items-start justify-between">
+                    <h3 className="font-heading font-bold text-off-white group-hover:text-gold transition-colors">{course.title}</h3>
+                    <span className="whitespace-nowrap rounded-full bg-gold/10 px-2 py-0.5 text-[10px] font-medium text-gold">{course.category}</span>
+                  </div>
+                  <p className="mb-4 line-clamp-2 text-xs text-muted-foreground">{course.description}</p>
+                  <div className="flex items-center gap-3">
+                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">
+                      <div className="h-full rounded-full bg-gold transition-all" style={{ width: `${progress}%` }} />
+                    </div>
+                    <span className="text-xs font-medium text-gold">{progress}%</span>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* Completed Courses */}
       {active.length > 0 && (
         <section>
           <h2 className="mb-4 font-heading font-bold text-off-white flex items-center gap-2">

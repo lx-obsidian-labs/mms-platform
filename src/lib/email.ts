@@ -1,13 +1,29 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 import { COMPANY } from "@/lib/constants";
 
-function getResend() {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) throw new Error("RESEND_API_KEY environment variable is not set");
-  return new Resend(apiKey);
-}
+const FROM_EMAIL = "Mpumalanga Mining Solutions <vilanenathan@gmail.com>";
 
-const FROM_EMAIL = "Mpumalanga Mining Solutions <noreply@mpumalangaminingsolutions.com>";
+let transporter: nodemailer.Transporter | null = null;
+
+function getTransporter(): nodemailer.Transporter {
+  if (transporter) return transporter;
+
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+
+  if (!user || !pass) {
+    throw new Error("SMTP_USER and SMTP_PASS environment variables must be set");
+  }
+
+  transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    auth: { user, pass },
+  });
+
+  return transporter;
+}
 
 const GOLD = "#D9A400";
 const GOLD_DARK = "#B88D00";
@@ -525,23 +541,18 @@ export async function sendInstructorNotification(params: {
 
 async function sendEmail(params: { to: string; subject: string; html: string }) {
   try {
-    const resend = getResend();
-    const { data, error } = await resend.emails.send({
+    const transport = getTransporter();
+    const info = await transport.sendMail({
       from: FROM_EMAIL,
       to: params.to,
       subject: params.subject,
       html: params.html,
     });
 
-    if (error) {
-      console.error("[Email] Send error:", error);
-      return { success: false, error: error.message };
-    }
-
-    console.log("[Email] Sent successfully:", data?.id);
-    return { success: true, id: data?.id };
+    console.log("[Email] Sent successfully:", info.messageId);
+    return { success: true, id: info.messageId };
   } catch (error) {
     console.error("[Email] Send failed:", error);
-    return { success: false, error: "Failed to send email" };
+    return { success: false, error: error instanceof Error ? error.message : "Failed to send email" };
   }
 }

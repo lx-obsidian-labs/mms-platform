@@ -11,8 +11,16 @@ export function HeroSection() {
       className="relative flex min-h-[100svh] items-center overflow-hidden bg-industrial-black"
       aria-label="Hero"
     >
+      {/* Background Image */}
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40"
+        style={{ backgroundImage: "url(/images/backgrounds/hero-bg.jpg)" }}
+        aria-hidden="true"
+      />
       {/* Background Pattern */}
       <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+        {/* Dark overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-industrial-black via-industrial-black/60 to-industrial-black/80" />
         {/* Grid Pattern */}
         <div className="absolute inset-0 opacity-[0.03]" style={{
           backgroundImage: `linear-gradient(rgba(217,164,0,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(217,164,0,0.3) 1px, transparent 1px)`,

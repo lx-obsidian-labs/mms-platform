@@ -29,6 +29,7 @@ export default function ApplyPage() {
         <PageHeader
           title="APPLY NOW"
           subtitle="Complete the form below to submit your application. Our admissions team will review and respond within 24 hours."
+          image="/images/backgrounds/about-hero.jpg"
         />
 
         <section className="bg-industrial-black py-[var(--section-padding)]">

@@ -11,8 +11,9 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <main className="min-h-screen bg-background">
-      <div className="flex min-h-screen items-center justify-center px-4 py-12">
+    <main className="relative min-h-screen bg-background">
+      <div className="pointer-events-none absolute inset-0 bg-cover bg-center bg-no-repeat opacity-[0.06]" style={{ backgroundImage: "url(/images/backgrounds/login-hero.jpg)" }} aria-hidden="true" />
+      <div className="relative z-10 flex min-h-screen items-center justify-center px-4 py-12">
         <div className="w-full max-w-md text-center">
           {/* Logo */}
           <div className="mb-8 flex flex-col items-center">

@@ -117,6 +117,7 @@ export default function SupportPage() {
         <PageHeader
           title="SUPPORT CENTER"
           subtitle="Get help with applications, student portal, courses, payments, and more. Our team is here to assist you."
+          image="/images/backgrounds/support-hero.jpg"
         />
 
         {/* FAQ Section */}

@@ -51,7 +51,8 @@ export default async function VerifyCertificatePage(props: { searchParams: Promi
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-industrial-black pt-24">
+      <main className="relative min-h-screen bg-industrial-black pt-24">
+        <div className="pointer-events-none absolute inset-0 bg-cover bg-center bg-no-repeat opacity-[0.07]" style={{ backgroundImage: "url(/images/backgrounds/verify-hero.jpg)" }} aria-hidden="true" />
         <Container size="narrow" className="py-16">
           <div className="text-center">
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-gold/10">

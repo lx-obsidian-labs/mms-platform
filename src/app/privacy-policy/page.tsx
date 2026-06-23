@@ -16,7 +16,7 @@ export default function PrivacyPolicyPage() {
     <>
       <Header />
       <main>
-        <PageHeader title="PRIVACY POLICY" subtitle="Last updated: January 2026" />
+        <PageHeader title="PRIVACY POLICY" subtitle="Last updated: January 2026" image="/images/backgrounds/legal-bg.jpg" />
 
         <section className="bg-industrial-black py-[var(--section-padding)]">
           <Container size="narrow">

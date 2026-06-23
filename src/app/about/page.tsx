@@ -43,6 +43,7 @@ export default function AboutPage() {
         <PageHeader
           title="ABOUT MMS"
           subtitle="Building the future of mining through excellence in training, innovation in education, and an unwavering commitment to student success."
+          image="/images/backgrounds/about-hero.jpg"
         />
 
         {/* Mission & Vision */}

@@ -24,8 +24,9 @@ export default async function BlogPage() {
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-industrial-black pt-24">
-        <Container className="py-16">
+      <main className="relative min-h-screen bg-industrial-black pt-24">
+        <div className="pointer-events-none absolute inset-0 bg-cover bg-center bg-no-repeat opacity-[0.06]" style={{ backgroundImage: "url(/images/backgrounds/blog-hero.jpg)" }} aria-hidden="true" />
+        <Container className="relative z-10 py-16">
           <div className="text-center">
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-gold/10">
               <Newspaper className="size-7 text-gold" />

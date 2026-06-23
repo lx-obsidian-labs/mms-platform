@@ -27,6 +27,7 @@ export default function ContactPage() {
         <PageHeader
           title="CONTACT US"
           subtitle="Have questions? Our team is here to help you start your mining career. Reach out through any of the channels below."
+          image="/images/backgrounds/contact-hero.jpg"
         />
 
         <section className="bg-industrial-black py-[var(--section-padding)]">

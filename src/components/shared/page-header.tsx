@@ -5,11 +5,22 @@ interface PageHeaderProps {
   title: string;
   subtitle?: string;
   className?: string;
+  image?: string;
 }
 
-export function PageHeader({ title, subtitle, className }: PageHeaderProps) {
+export function PageHeader({ title, subtitle, className, image }: PageHeaderProps) {
   return (
     <section className={cn("relative overflow-hidden bg-surface py-20 pt-28 md:py-28 md:pt-36 lg:py-32 lg:pt-40", className)}>
+      {/* Background image */}
+      {image && (
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${image})` }}
+          aria-hidden="true"
+        />
+      )}
+      {/* Dark overlay */}
+      <div className={cn("absolute inset-0", image ? "bg-industrial-black/75" : "bg-surface")} aria-hidden="true" />
       {/* Background grid */}
       <div
         className="absolute inset-0 opacity-[0.03]"

@@ -39,6 +39,7 @@ export default function CoursesPage() {
         <PageHeader
           title="TRAINING PROGRAMS"
           subtitle="17 industry-aligned courses designed to prepare you for a successful career in South Africa's mining and industrial sectors."
+          image="/images/backgrounds/hero-bg.jpg"
         />
 
         <section className="bg-industrial-black py-[var(--section-padding)]">

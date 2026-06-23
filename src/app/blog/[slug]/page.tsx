@@ -45,8 +45,9 @@ export default async function BlogPostPage({ params }: Props) {
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-industrial-black pt-24">
-        <Container size="narrow" className="py-16">
+      <main className="relative min-h-screen bg-industrial-black pt-24">
+        <div className="pointer-events-none absolute inset-0 bg-cover bg-center bg-no-repeat opacity-[0.06]" style={{ backgroundImage: "url(/images/backgrounds/blog-hero.jpg)" }} aria-hidden="true" />
+        <Container size="narrow" className="relative z-10 py-16">
           <Link
             href="/blog"
             className="mb-8 inline-flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-gold"

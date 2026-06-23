@@ -223,6 +223,8 @@ export async function submitApplication(formData: EnrollmentFormData) {
       lastName: formData.lastName,
       courseName: course.title,
       referenceNumber,
+      email: formData.email,
+      tempPassword,
     });
 
     // Notify admin

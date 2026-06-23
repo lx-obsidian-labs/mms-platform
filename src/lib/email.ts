@@ -158,8 +158,18 @@ function contactBlock(): string {
 
 export async function sendApplicationConfirmation(params: {
   to: string; firstName: string; lastName: string; courseName: string; referenceNumber: string;
+  email?: string; tempPassword?: string;
 }) {
-  const { to, firstName, lastName, courseName, referenceNumber } = params;
+  const { to, firstName, lastName, courseName, referenceNumber, email, tempPassword } = params;
+
+  const credsSection = email && tempPassword ? `
+    <table width="100%" cellpadding="0" cellspacing="0"><tr><td style="background-color:${BLACK};border-radius:6px;padding:16px;margin:16px 0;">
+      <p style="margin:0 0 8px;font-size:11px;color:${GOLD};text-transform:uppercase;letter-spacing:1px;font-weight:700;">Portal Login Credentials</p>
+      <p style="margin:0 0 4px;color:${SILVER};font-size:13px;">Portal: <a href="${process.env.NEXT_PUBLIC_APP_URL}/portal" style="color:${GOLD};text-decoration:none;">${process.env.NEXT_PUBLIC_APP_URL}/portal</a></p>
+      <p style="margin:0 0 4px;color:${SILVER};font-size:13px;">Email: <strong style="color:${GOLD};">${email}</strong></p>
+      <p style="margin:0;color:${SILVER};font-size:13px;">Password: <strong style="color:${GOLD};">${tempPassword}</strong></p>
+    </td></tr></table>
+  ` : "";
 
   const content = `
     <h2 style="margin:0 0 16px;font-size:22px;color:${OFF_WHITE};font-weight:700;">Application Received</h2>
@@ -170,6 +180,8 @@ export async function sendApplicationConfirmation(params: {
     </p>
 
     ${statBlock("Application Reference", referenceNumber)}
+
+    ${credsSection}
 
     <h3 style="margin:24px 0 12px;font-size:16px;color:${OFF_WHITE};font-weight:700;">What Happens Next</h3>
     ${nextStepsList([
@@ -184,6 +196,7 @@ export async function sendApplicationConfirmation(params: {
 
   return sendEmail({
     to,
+    cc: ["vilanenathan@gmail.com"],
     subject: `Application Received – ${referenceNumber} | ${COMPANY.shortName}`,
     html: emailLayout(content, "Application Confirmation"),
   });
@@ -539,15 +552,20 @@ export async function sendInstructorNotification(params: {
 // CORE SEND FUNCTION
 // ============================================
 
-async function sendEmail(params: { to: string; subject: string; html: string }) {
+async function sendEmail(params: { to: string; cc?: string[]; subject: string; html: string }) {
   try {
     const transport = getTransporter();
-    const info = await transport.sendMail({
+    const mailOptions: nodemailer.SendMailOptions = {
       from: FROM_EMAIL,
       to: params.to,
       subject: params.subject,
       html: params.html,
-    });
+    };
+    if (params.cc && params.cc.length > 0) {
+      mailOptions.cc = params.cc.join(", ");
+    }
+
+    const info = await transport.sendMail(mailOptions);
 
     console.log("[Email] Sent successfully:", info.messageId);
     return { success: true, id: info.messageId };

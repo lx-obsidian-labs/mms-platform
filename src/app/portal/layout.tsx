@@ -23,6 +23,7 @@ import { OnboardingTour } from "@/components/onboarding-tour";
 
 const NAV_ITEMS = [
   { label: "Dashboard", href: "/portal/dashboard", icon: LayoutDashboard, tour: "dashboard" },
+  { label: "E-Learning", href: "/portal/elearning", icon: GraduationCap, tour: null },
   { label: "My Courses", href: "/portal/courses", icon: BookOpen, tour: "courses" },
   { label: "Certificates", href: "/portal/certificates", icon: Award, tour: "certificates" },
   { label: "Documents", href: "/portal/documents", icon: FileText, tour: null },

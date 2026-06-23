@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { PageHeader } from "@/components/shared/page-header";
@@ -48,7 +49,9 @@ export default function ApplyPage() {
               </Link>
             </div>
           </Container>
-          <EnrollmentForm />
+          <Suspense fallback={<div className="py-20 text-center text-muted-foreground">Loading application form...</div>}>
+            <EnrollmentForm />
+          </Suspense>
         </section>
 
         <CtaSection />

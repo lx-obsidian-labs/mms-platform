@@ -62,8 +62,10 @@ export function OnboardingTour() {
   useEffect(() => {
     const val = localStorage.getItem(STORAGE_KEY);
     if (val !== "true") {
-      setDismissed(false);
-      setTimeout(() => setActive(true), 800);
+      setTimeout(() => {
+        setDismissed(false);
+        setTimeout(() => setActive(true), 800);
+      }, 0);
     }
   }, []);
 
@@ -72,7 +74,9 @@ export function OnboardingTour() {
     const el = document.querySelector(STEPS[step].target);
     if (el) {
       const rect = el.getBoundingClientRect();
-      setCoords({ top: rect.top, left: rect.left, width: rect.width, height: rect.height });
+      setTimeout(() => {
+        setCoords({ top: rect.top, left: rect.left, width: rect.width, height: rect.height });
+      }, 0);
     }
   }, [active, step]);
 

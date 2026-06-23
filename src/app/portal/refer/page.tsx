@@ -22,9 +22,15 @@ export default async function ReferPage() {
     .eq("id", user.id)
     .single();
 
+  const cryptoRandom = () => {
+    // Use crypto.getRandomValues for stable rendering in React
+    const arr = new Uint32Array(1);
+    window.crypto.getRandomValues(arr);
+    return arr[0] % 1000000;
+  };
   const referralLink = `${
     process.env.NEXT_PUBLIC_SITE_URL || "https://mpumalangaminingsolutions.com"
-  }/apply?ref=${profile?.first_name?.toLowerCase() ?? "student"}-${Date.now()}`;
+  }/apply?ref=${profile?.first_name?.toLowerCase() ?? "student"}-${cryptoRandom()}`;
 
   return (
     <div className="space-y-8">

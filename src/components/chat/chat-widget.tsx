@@ -18,7 +18,7 @@ export function ChatWidget() {
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const sessionId = useRef(
-    "chat_" + Math.random().toString(36).substring(2, 10) + Date.now().toString(36)
+    "chat_" + Array.from(crypto.getRandomValues(new Uint32Array(1)))[0].toString(36).substring(2, 10)
   );
 
   const scrollToBottom = useCallback(() => {

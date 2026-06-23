@@ -56,7 +56,7 @@ export default async function AdminBlogPage() {
               <tr>
                 <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
                   <Newspaper className="mx-auto mb-2 size-5" />
-                  No blog posts yet. Click "New Post" to create one.
+                  No blog posts yet. Click &ldquo;New Post&rdquo; to create one.
                 </td>
               </tr>
             ) : (

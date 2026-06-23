@@ -59,9 +59,9 @@ export function AuthForm() {
             <Mail className="size-6 text-gold" />
           </div>
           <h2 className="font-heading text-lg font-bold text-off-white">Request Login Details</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Enter the email address you used during enrollment. We'll send you instructions to access your account.
-          </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Enter the email address you used during enrollment. We&apos;ll send you instructions to access your account.
+            </p>
         </div>
 
         <form onSubmit={handleRequest} className="space-y-4">

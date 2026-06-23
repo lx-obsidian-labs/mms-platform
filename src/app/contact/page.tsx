@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { PageHeader } from "@/components/shared/page-header";
@@ -77,26 +78,26 @@ export default function ContactPage() {
                   <h3 className="mb-3 font-heading text-lg font-bold text-gold">
                     Quick Actions
                   </h3>
-                  <div className="space-y-2 text-sm">
-                    <a
-                      href="/apply"
-                      className="block rounded-lg bg-gold px-4 py-2.5 text-center font-semibold text-industrial-black transition-all hover:bg-gold-light"
-                    >
-                      Apply Now
-                    </a>
-                    <a
-                      href="/courses"
-                      className="block rounded-lg border border-white/10 px-4 py-2.5 text-center text-off-white transition-all hover:border-gold/30"
-                    >
-                      Browse Courses
-                    </a>
-                    <a
-                      href={`https://wa.me/${COMPANY.whatsapp.replace(/[^0-9]/g, "")}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block rounded-lg border border-white/10 px-4 py-2.5 text-center text-off-white transition-all hover:border-gold/30"
-                    >
-                      Chat on WhatsApp
+                   <div className="space-y-2 text-sm">
+                     <Link
+                       href="/apply"
+                       className="block rounded-lg bg-gold px-4 py-2.5 text-center font-semibold text-industrial-black transition-all hover:bg-gold-light"
+                     >
+                       Apply Now
+                     </Link>
+                     <Link
+                       href="/courses"
+                       className="block rounded-lg border border-white/10 px-4 py-2.5 text-center text-off-white transition-all hover:border-gold/30"
+                     >
+                       Browse Courses
+                     </Link>
+                     <a
+                       href={`https://wa.me/${COMPANY.whatsapp.replace(/[^0-9]/g, "")}`}
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       className="block rounded-lg border border-white/10 px-4 py-2.5 text-center text-off-white transition-all hover:border-gold/30"
+                     >
+                       Chat on WhatsApp
                     </a>
                   </div>
                 </div>

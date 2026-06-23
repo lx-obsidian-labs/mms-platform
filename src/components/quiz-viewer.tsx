@@ -40,7 +40,11 @@ export function QuizViewer({ lessonId, enrollmentId }: { lessonId: string; enrol
     setLoading(false);
   }, [lessonId]);
 
-  useEffect(() => { fetchQuiz(); }, [fetchQuiz]);
+  useEffect(() => {
+    setTimeout(() => {
+      fetchQuiz();
+    }, 0);
+  }, [fetchQuiz]);
 
   async function handleSubmit() {
     setSubmitting(true);

@@ -1,36 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MMS Platform
 
-## Getting Started
+A Next.js application maintained in the LX Obsidian Labs portfolio.
 
-First, run the development server:
+> **Project status:** Technical documentation is being reviewed. Do not assume production readiness or feature completeness from this overview.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Technology
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Next.js (React)
+- JavaScript/TypeScript tooling (confirm exact implementation in source)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Local development
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Clone this repository.
+2. Install dependencies with the package manager specified by the lockfile.
+3. Review `package.json` and any environment configuration before starting.
+4. Run `npm run dev` if the npm scripts and dependencies support it.
+5. Open http://localhost:3000.
 
-## Learn More
+## Engineering review checklist
 
-To learn more about Next.js, take a look at the following resources:
+- [ ] Document the actual business problem and intended users
+- [ ] Verify framework version and database/backend integrations
+- [ ] Describe application architecture and primary workflows
+- [ ] Add screenshots or a short demo of working features
+- [ ] Document environment variables **without exposing secrets**
+- [ ] Run build, lint and tests; record results
+- [ ] Confirm deployment URL and current availability
+- [ ] Clarify license, attribution and contribution scope
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Maintainer
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+LX Obsidian Labs — Nathan Vilane
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+[Engineering portfolio](https://github.com/lx-obsidian-labs/lx-obsidian-labs)

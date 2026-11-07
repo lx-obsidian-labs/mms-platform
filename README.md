@@ -1,35 +1,58 @@
-# MMS Platform
+# MMS Platform — Mpumalanga Mining Solutions
 
-A Next.js application maintained in the LX Obsidian Labs portfolio.
+**Training and operations platform | Next.js / React / Supabase**
 
-> **Project status:** Technical documentation is being reviewed. Do not assume production readiness or feature completeness from this overview.
+**Stage:** To confirm from current releases and deployment evidence.  
+**Verification:** Source manifests inspected; build, lint, live integrations and user workflows have not been independently executed in this documentation review.  
+**Next milestone:** Verify a clean build, Supabase authentication/data boundaries and core training workflows.
 
-## Technology
+## Purpose
 
-- Next.js (React)
-- JavaScript/TypeScript tooling (confirm exact implementation in source)
+This repository contains a web application associated with Mpumalanga Mining Solutions' training ecosystem. The codebase includes a Next.js application, Supabase integration dependencies, email tooling and PDF generation dependencies. These are **declared technical dependencies**, not evidence that every planned business process is complete.
+
+## Technical stack
+
+Based on the checked-in `package.json`:
+
+- Next.js 16, React 19, TypeScript and Tailwind CSS 4
+- Supabase JavaScript and SSR clients
+- Nodemailer and Resend for potential communication integrations
+- PDFKit for document/PDF capabilities
+- ESLint for static checks
 
 ## Local development
 
-1. Clone this repository.
-2. Install dependencies with the package manager specified by the lockfile.
-3. Review `package.json` and any environment configuration before starting.
-4. Run `npm run dev` if the npm scripts and dependencies support it.
-5. Open http://localhost:3000.
+Requires a compatible Node.js version and environment configuration for whichever Supabase and email features are exercised.
 
-## Engineering review checklist
+```bash
+npm ci
+npm run dev
+```
 
-- [ ] Document the actual business problem and intended users
-- [ ] Verify framework version and database/backend integrations
-- [ ] Describe application architecture and primary workflows
-- [ ] Add screenshots or a short demo of working features
-- [ ] Document environment variables **without exposing secrets**
-- [ ] Run build, lint and tests; record results
-- [ ] Confirm deployment URL and current availability
-- [ ] Clarify license, attribution and contribution scope
+Open http://localhost:3000. Review source references to `process.env` before configuring credentials; do not commit secrets.
 
-## Maintainer
+## Verification commands
 
-LX Obsidian Labs — Nathan Vilane
+```bash
+npm run lint
+npm run build
+```
 
-[Engineering portfolio](https://github.com/lx-obsidian-labs/lx-obsidian-labs)
+These scripts are present in the manifest. **No automated test script is declared in the inspected package manifest.** A successful build alone does not validate database policies, authorization, email delivery or business workflows.
+
+## Documentation and architecture review
+
+The repository contains extensive project specification PDFs covering requirements, student portal, administration, database architecture, security, design, marketing and operational procedures. Treat these documents as **planning/specification material** until each requirement is mapped to implemented code and acceptance tests.
+
+Before publishing a production case study:
+
+1. Map the implemented routes, roles and data tables to the specifications.
+2. Verify Supabase row-level security and authorization on privileged operations.
+3. Test enrolment, student and administration workflows with controlled data.
+4. Verify email/PDF behavior, including failure and privacy cases.
+5. Run lint/build and record CI run links and deployment evidence.
+6. Confirm client approval to publish project-specific screenshots and business documents.
+
+## Portfolio and attribution
+
+Maintained in the [LX Obsidian Labs engineering portfolio](https://github.com/lx-obsidian-labs/lx-obsidian-labs). The repository's licensing and third-party attribution should be reviewed before reuse or redistribution. Client-specific documents must not be copied into public marketing without permission.

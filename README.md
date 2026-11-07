@@ -2,6 +2,7 @@
 
 **Training and operations platform | Next.js / React / Supabase**
 
+**CI evidence (2026-11-07):** [Verify Next.js application run 42393763372](https://github.com/lx-obsidian-labs/mms-platform/actions/runs/42393763372) completed successfully at commit `02add610525562a12aa89100458308d8cc552653`. Supabase authorization and live training workflows remain unverified.  
 **Stage:** To confirm from current releases and deployment evidence.  
 **Verification:** Source manifests inspected; build, lint, live integrations and user workflows have not been independently executed in this documentation review.  
 **Next milestone:** Verify a clean build, Supabase authentication/data boundaries and core training workflows.
